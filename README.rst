@@ -5,7 +5,7 @@ django-cache-memoize
 .. image:: https://travis-ci.org/peterbe/django-cache-memoize.svg?branch=master
    :alt: Build Status
    :target: https://travis-ci.org/peterbe/django-cache-memoize
-   
+
 .. image:: https://readthedocs.org/projects/django-cache-memoize/badge/?version=latest
    :alt: Documentation Status
    :target: https://django-cache-memoize.readthedocs.io/en/latest/?badge=latest
@@ -75,7 +75,7 @@ Advanced Usage
 ==============
 
 ``args_rewrite``
-----------------
+~~~~~~~~~~~~~~~~
 
 Internally the decorator rewrites every argument and keyword argument to
 the function it wraps into a concatenated string. The first thing you
@@ -121,7 +121,7 @@ as the function you're decorating. Here's an example implementation:
 
 
 ``prefix``
-----------
+~~~~~~~~~~
 
 By default the prefix becomes the name of the function. Consider:
 
@@ -149,7 +149,7 @@ By default the prefix becomes the name of the function. Consider:
 
 
 ``hit_callable``
-----------------
+~~~~~~~~~~~~~~~~
 
 If set, a function that gets called with the original argument and keyword
 arguments **if** the cache was able to find and return a cache hit.
@@ -169,13 +169,13 @@ there's a cache hit.
 
 
 ``miss_callable``
------------------
+~~~~~~~~~~~~~~~~~
 
 Exact same functionality as ``hit_callable`` except the obvious difference
 that it gets called if it was *not* a cache hit.
 
 ``store_result``
-----------------
+~~~~~~~~~~~~~~~~
 
 This is useful if you have a function you want to make sure only gets called
 once per timeout expiration but you don't actually care that much about
@@ -201,7 +201,7 @@ can set ``store_result`` to ``False``.
 
 
 Cache invalidation
-------------------
+~~~~~~~~~~~~~~~~~~
 
 When you want to "undo" some caching done, you simple call the function
 again with the same arguments except you add ``.invalidate`` to the function.
@@ -243,3 +243,102 @@ There is no way to clear more than one cache key. In the above example,
 you had to know the "original arguments" when you wanted to invalidate
 the cache. There is no method "search" for all cache keys that match a
 certain pattern.
+
+
+Compatibility
+=============
+
+* Python 2.7, 3.4, 3.5, 3.6
+
+* Django 1.8, 1.9, 1.10, 1.11
+
+Check out the `tox.ini`_ file for more up-to-date compatibility by
+test coverage.
+
+.. _`tox.ini`: https://github.com/peterbe/django-cache-memoize/blob/master/tox.ini
+
+Prior Art
+=========
+
+History
+~~~~~~~
+
+`Mozilla Symbol Server`_ is written in Django. It's a web service that
+sits between C++ debuggers and AWS S3. It shuffles symbol files in and out of
+AWS S3. Symbol files are for C++ (and other compiled languages) what
+sourcemaps are for JavaScript.
+
+This service gets a LOT of traffic. The download traffic (proxying requests
+for symbols in S3) gets about ~40 requests per second. Due to the nature
+of the application most of these GETs result in a 404 Not Found but instead
+of asking AWS S3 for every single file, these lookups are cached in a
+highly configured `Redis`_ configuration. This Redis cache is also connected
+to the part of the code that uploads new files.
+
+New uploads are arriving as zip file bundles of files, from Mozilla's build
+systems, at a rate of about 600MB every minute, each containing on average
+about 100 files each. When a new upload comes in we need to quickly be able
+find out if it exists in S3 and this gets cached since often the same files
+are repeated in different uploads. But when a file does get uploaded into S3
+we need to quickly and confidently invalidate any local caches. That way you
+get to keep a really aggressive cache without any stale periods.
+
+This is the use case ``django-cache-memoize`` was built for and tested in.
+It was originally written for Python 3.6 in Django 1.11 but when
+extracted, made compatible with Python 2.7 and as far back as Django 1.8.
+
+``django-cache-memoize`` is also used in `SongSear.ch`_ to cache short
+queries in the autocomplete search input. All autocomplete is done by
+Elasticsearch, which is amazingly fast, but not as fast as ``memcached``.
+
+
+.. _`Mozilla Symbol Server`: https://symbols.mozilla.org
+.. _`Redis`: https://redis.io/
+.. _`SongSear.ch`: https://songsear.ch
+
+
+"Competition"
+~~~~~~~~~~~~~
+
+There is already `django-memoize`_ by `Thomas Vavrys`_.
+It too is available as a memoization decorator you use in Django. And it
+uses the default cache framework as a storage. It used ``inspect`` on the
+decorated function to build a cache key.
+
+In benchmarks running both ``django-memoize`` and ``django-cache-memoize``
+I found ``django-cache-memoize`` to be **~4 times faster** on average.
+
+Another key difference is that ``django-cache-memoize`` uses ``str()`` and
+``django-memoize`` uses ``repr()`` which in certain cases of mutable objects
+(e.g. class instances) as arguments the caching will not work. For example,
+this does *not* work in ``django-memoize``:
+
+.. code-block:: python
+
+    from memoize import memoize
+
+    @memoize(60)
+    def count_user_groups(user):
+        return user.groups.all().count()
+
+    def myview(request):
+        # this will never be memoized
+        print(count_user_groups(request.user))
+
+However, this works...
+
+.. code-block:: python
+
+    from cache_memoize import cache_memoize
+
+    @cache_memoize(60)
+    def count_user_groups(user):
+        return user.groups.all().count()
+
+    def myview(request):
+        # this *will* work as expected
+        print(count_user_groups(request.user))
+
+
+.. _`django-memoize`: http://pythonhosted.org/django-memoize/
+.. _`Thomas Vavrys`: https://github.com/tvavrys
