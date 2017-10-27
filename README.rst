@@ -1,0 +1,238 @@
+====================
+django-cache-memoize
+====================
+
+
+Django utility for a memoization decorator that uses the Django cache framework.
+
+Key Features
+------------
+
+* Memoized function calls can be invalidated.
+
+* Works with non-trivial arguments and keyword arguments
+
+* Insight into cache hits and cache missed with a callback.
+
+* Ability to use as a "guard" for repeated execution when storing the function
+  result isn't important or needed.
+
+
+Installation
+============
+
+.. code-block:: python
+
+    pip install django-cache-memoize
+
+Usage
+=====
+
+.. code-block:: python
+
+    # Import the decorator
+    from cache_memoize import cache_memoize
+
+    # Attach decorator to cacheable function with a timeout of 100 seconds.
+    @cache_memoize(100)
+    def expensive_function(start, end):
+        return random.randint(start, end)
+
+    # Just a regular Django view
+    def myview(request):
+        # If you run this view repeatedly you'll get the same
+        # output every time for 100 seconds.
+        return http.HttpResponse(str(expensive_function(0, 100)))
+
+
+The caching uses `Django's default cache framework`_. Ultimately, it calls
+``django.core.cache.cache.set(cache_key, function_out, expiration)``.
+So if you have a function that returns something that can't be pickled and
+cached it won't work.
+
+    For cases like this, Django exposes a simple, low-level cache API. You can
+    use this API to store objects in the cache with any level of granularity
+    you like. You can cache any Python object that can be pickled safely:
+    strings, dictionaries, lists of model objects, and so forth. (Most
+    common Python objects can be pickled; refer to the Python documentation
+    for more information about pickling.)
+
+See `documentation`_.
+
+
+.. _`Django's default cache framework`: https://docs.djangoproject.com/en/1.11/topics/cache/
+.. _`documentation`: https://docs.djangoproject.com/en/1.11/topics/cache/#the-low-level-cache-api
+
+
+Advanced Usage
+==============
+
+``args_rewrite``
+----------------
+
+Internally the decorator rewrites every argument and keyword argument to
+the function it wraps into a concatenated string. The first thing you
+might want to do is help the decorator rewrite the arguments to something
+more suitable as a cache key string. For example, suppose you have instances
+of a class whose ``__str__`` method doesn't return a unique value. For example:
+
+.. code-block:: python
+
+    class Record(models.Model):
+        name = models.CharField(max_length=100)
+        lastname = models.CharField(max_length=100)
+        friends = models.ManyToManyField(SomeOtherModel)
+
+        def __str__(self):
+            return self.name
+
+    # Example use:
+    >>> record = Record.objects.create(name='Peter', lastname='Bengtsson')
+    >>> print(record)
+    Peter
+    >>> record2 = Record.objects.create(name='Peter', lastname='Different')
+    >>> print(record2)
+    Peter
+
+This is a contrived example, but basically *you know* that the ``str()``
+conversion of certain arguments isn't safe. Then you can pass in a callable
+called ``args_rewrite``. It gets the same positional and keyword arguments
+as the function you're decorating. Here's an example implementation:
+
+.. code-block:: python
+
+    from cache_memoize import cache_memoize
+
+    def count_friends_args_rewrite(record):
+        # The 'id' is always unique. Use that instead of the default __str__
+        return record.id
+
+    @cache_memoize(100, args_rewrite=count_friends_args_rewrite)
+    def count_friends(record):
+        # Assume this is an expensive function that can be memoize cached.
+        return record.friends.all().count()
+
+
+``prefix``
+----------
+
+By default the prefix becomes the name of the function. Consider:
+
+.. code-block:: python
+
+    from cache_memoize import cache_memoize
+
+    @cache_memoize(10, prefix='randomness')
+    def function1():
+        return random.random()
+
+    @cache_memoize(10, prefix='randomness')
+    def function2():  # different name, same arguments, same functionality
+        return random.random()
+
+    # Example use
+    >>> function1()
+    0.39403406043780986
+    >>> function1()
+    0.39403406043780986
+    >>> # ^ repeated of course
+    >>> function2()
+    0.39403406043780986
+    >>> # ^ because the prefix was forcibly the same, the cache key is the same
+
+
+``hit_callable``
+----------------
+
+If set, a function that gets called with the original argument and keyword
+arguments **if** the cache was able to find and return a cache hit.
+For example, suppose you want to tell your ``statsd`` server every time
+there's a cache hit.
+
+.. code-block:: python
+
+    from cache_memoize import cache_memoize
+
+    def _cache_hit(user, **kwargs):
+        statsdthing.incr(f'cachehit:{user.id}', 1)
+
+    @cache_memoize(10, hit_callable=_cache_hit)
+    def calculate_tax(user, tax=0.1):
+        return ...
+
+
+``miss_callable``
+-----------------
+
+Exact same functionality as ``hit_callable`` except the obvious difference
+that it gets called if it was *not* a cache hit.
+
+``store_result``
+----------------
+
+This is useful if you have a function you want to make sure only gets called
+once per timeout expiration but you don't actually care that much about
+what the function return value was. Perhaps because you know that the
+function returns something that would quickly fill up your ``memcached`` or
+perhaps you know it returns something that can't be pickled. Then you
+can set ``store_result`` to ``False``.
+
+.. code-block:: python
+
+    from cache_memoize import cache_memoize
+
+    @cache_memoize(1000, store_result=False)
+    def send_tax_returns(user):
+        # something something time consuming
+        ...
+        return some_none_pickleable_thing
+
+    def myview(request):
+        # View this view as much as you like the 'send_tax_returns' function
+        # won't be called more than once every 1000 seconds.
+        send_tax_returns(request.user)
+
+
+Cache invalidation
+------------------
+
+When you want to "undo" some caching done, you simple call the function
+again with the same arguments except you add ``.invalidate`` to the function.
+
+.. code-block:: python
+
+    from cache_memoize import cache_memoize
+
+    @cache_memoize(10)
+    def expensive_function(start, end):
+        return random.randint(start, end)
+
+    >>> expensive_function(1, 100)
+    65
+    >>> expensive_function(1, 100)
+    65
+    >>> expensive_function(100, 200)
+    121
+    >>> exensive_function.invalidate(1, 200)
+    >>> expensive_function(1, 100)
+    89
+    >>> expensive_function(100, 200)
+    121
+
+An "alias" of doing the same thing is to pass a keyword argument called
+``_refresh=True``. Like this:
+
+.. code-block:: python
+
+    # Continuing from the code block above
+    >>> expensive_function(100, 200)
+    121
+    >>> expensive_function(100, 200, _refresh=True)
+    177
+    >>> expensive_function(100, 200)
+    177
+
+There is no way to clear more than one cache key. In the above example,
+you had to know the "original arguments" when you wanted to invalidate
+the cache. There is no method "search" for all cache keys that match a
+certain pattern.
