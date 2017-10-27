@@ -10,6 +10,11 @@ django-cache-memoize
    :alt: Documentation Status
    :target: https://django-cache-memoize.readthedocs.io/en/latest/?badge=latest
 
+.. image:: https://codecov.io/gh/peterbe/django-cache-memoize/branch/master/graph/badge.svg
+   :alt: Code Coverage
+   :target: https://codecov.io/gh/peterbe/django-cache-memoize
+
+
 Django utility for a memoization decorator that uses the Django cache framework.
 
 Key Features
