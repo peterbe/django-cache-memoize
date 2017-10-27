@@ -1,5 +1,5 @@
 from os import path
-from setuptools import setup
+from setuptools import setup, find_packages
 
 _here = path.dirname(__file__)
 
@@ -16,8 +16,10 @@ setup(
     author_email='mail@peterbe.com',
     license='MPL 2.0',
     url='https://github.com/peterbe/django-cache-memoize',
-    py_modules=['src/cache_memoize'],
-    include_package_data=False,
+    # py_modules=['src/cache_memoize'],
+    packages=find_packages(where='src'),
+    package_dir={'': 'src'},
+    # include_package_data=False,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment :: Mozilla',

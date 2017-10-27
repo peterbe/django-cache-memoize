@@ -1,1 +1,4 @@
+pytest
+pytest-coverage
 python-memcached
+pytest-django

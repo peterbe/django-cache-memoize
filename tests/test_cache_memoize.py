@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
+
 from cache_memoize import cache_memoize
+
 
 def test_cache_memoize():
 
@@ -156,3 +159,25 @@ def test_cache_memoize_different_functions_same_arguments():
         raise Exception
 
     assert function_3(100) == 300
+
+
+def test_invalidate():
+
+    calls_made = []
+
+    import random
+
+    @cache_memoize(10)
+    def function(argument):
+        calls_made.append(argument)
+        return random.random()
+
+    value = function(100)
+    assert value == function(100)
+    assert len(calls_made) == 1
+    function.invalidate(999)  # different args
+    assert value == function(100)
+    assert len(calls_made) == 1
+    function.invalidate(100)  # known args
+    assert value != function(100)
+    assert len(calls_made) == 2

@@ -85,7 +85,7 @@ def cache_memoize(
         def _make_cache_key(*args, **kwargs):
             cache_key = ':'.join(
                 [force_text(x) for x in args_rewrite(*args)] +
-                [force_text(f'{k}={v}') for k, v in kwargs.items()]
+                [force_text('{}={}'.format(k, v)) for k, v in kwargs.items()]
             )
             return hashlib.md5(force_bytes(
                 'cache_memoize' + (prefix or func.__name__) + cache_key
