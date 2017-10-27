@@ -187,7 +187,8 @@ once per timeout expiration but you don't actually care that much about
 what the function return value was. Perhaps because you know that the
 function returns something that would quickly fill up your ``memcached`` or
 perhaps you know it returns something that can't be pickled. Then you
-can set ``store_result`` to ``False``.
+can set ``store_result`` to ``False``. This is equivalent to your function
+returning ``True``.
 
 .. code-block:: python
 
