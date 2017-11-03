@@ -76,6 +76,17 @@ See `documentation`_.
 .. _`documentation`: https://docs.djangoproject.com/en/1.11/topics/cache/#the-low-level-cache-api
 
 
+Example Usage
+=============
+
+This blog post: `How to use django-cache-memoize`_
+
+It demonstrates similarly to the above Usage example but with a little more
+detail. In particular it demonstrates the difference between *not* using
+``django-cache-memoize`` and then adding it to your code after.
+
+.. _`How to use django-cache-memoize`: https://www.peterbe.com/plog/how-to-use-django-cache-memoize
+
 Advanced Usage
 ==============
 
