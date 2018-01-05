@@ -1,1 +1,2 @@
 - Peter Bengtsson (@peterbe)
+- Ben Spaulding (@benspaulding)

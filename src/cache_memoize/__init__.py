@@ -1,7 +1,7 @@
 from functools import wraps
 
 import hashlib
-from django.core.cache import cache
+from django.core.cache import caches, DEFAULT_CACHE_ALIAS
 
 from django.utils.encoding import force_text, force_bytes
 
@@ -13,6 +13,7 @@ def cache_memoize(
     hit_callable=None,
     miss_callable=None,
     store_result=True,
+    cache_alias=DEFAULT_CACHE_ALIAS,
 ):
     """Decorator for memoizing function calls where we use the
     "local cache" to store the result.
@@ -26,6 +27,7 @@ def cache_memoize(
     :arg function miss_callable: Gets executed if key was *not* in cache.
     :arg bool store_result: If you know the result is not important, just
     that the cache blocked it from running repeatedly, set this to False.
+    :arg string cache_alias: The cache alias to use; defaults to 'default'.
 
     Usage::
 
@@ -79,6 +81,8 @@ def cache_memoize(
         def noop(*args):
             return args
         args_rewrite = noop
+    
+    cache = caches[cache_alias]
 
     def decorator(func):
 

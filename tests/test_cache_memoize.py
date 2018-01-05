@@ -181,3 +181,24 @@ def test_invalidate():
     function.invalidate(100)  # known args
     assert value != function(100)
     assert len(calls_made) == 2
+
+
+def test_cache_memoize_custom_alias():
+
+    calls_made = []
+
+    def runmeonce(a):
+        calls_made.append(a)
+        return a * 2
+
+    runmeonce_default = cache_memoize(10)(runmeonce)
+    runmeonce_locmem = cache_memoize(10, cache_alias='locmem')(runmeonce)
+
+    runmeonce_default(10)
+    assert len(calls_made) == 1
+    runmeonce_default(10)
+    assert len(calls_made) == 1
+    runmeonce_locmem(10)
+    assert len(calls_made) == 2
+    runmeonce_locmem(10)
+    assert len(calls_made) == 2
