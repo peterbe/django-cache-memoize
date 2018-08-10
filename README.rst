@@ -216,6 +216,23 @@ returning ``True``.
         # won't be called more than once every 1000 seconds.
         send_tax_returns(request.user)
 
+``cache_alias``
+~~~~~~~~~~~~~~~
+
+The ``cache_alias`` argument allows you to use a cache other than the default.
+
+.. code-block:: python
+
+    # Given settings like:
+    # CACHES = {
+    #     'default': {...},
+    #     'other': {...},
+    # }
+
+    @cache_memoize(1000, cache_alias='other')
+    def myfunc(start, end):
+        return random.random()
+
 
 Cache invalidation
 ~~~~~~~~~~~~~~~~~~

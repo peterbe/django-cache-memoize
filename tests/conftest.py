@@ -5,3 +5,4 @@ import pytest
 def clear_cache():
     from django.core.cache import caches
     caches['default'].clear()
+    caches['locmem'].clear()
