@@ -15,11 +15,3 @@ install:
 script: tox -v
 after_success:
 - bash <(curl -s https://codecov.io/bash)
-deploy:
-  provider: pypi
-  user: peterbe
-  password:
-    secure: I3Z1kTaNQGB6yXxZfzFtsXvkJy/2fFVrCVWYLiMQanHlwaEGeQn9xH56ULXz7RNUxLAILjqWjdcEjiApbGi5jXJokb2Asa/F4KoVNcciqYZKcBO3OTPSjOa7plBK/v3QCyGs8yaBylsYqucy2fm99t6XKmgflXRC4GCUhe8OoQ3xLAjWailMAEhAe9k+al5ccTHZhEh/hD/nTxO36n9GchVJEzebWu8Uj0FPv+Y6getXryvVEE7AQ/u+ePX8x5YclyhWDsWTEHQ3CRjIx67+fRy/fO3FoEThXzDMdts2qNUj+8bZkHAyHzzslaKWxeq+9LHKuusBgc364SC4ME0SdTtnBFdu0AiyvCcxBKwma5pUAHvn9Ys4+TqWkiHCDNZlU1J/EepxxuMCaR4HvbblYVcYQLG4AUMaRUNhNh/da7r7dUj2umyhBRxnkKEmOHzpXwWV6ZYTNJYgFLjoNHKPEw1VRGnQuVkZmRFM0vrSniLk9dxDuvMSJBi6sObR5C/DvL10tbQJtfachG8MRZXI6fFZEILH9WRliLWedZuSRhr3GVeKE9xkFkg40MhBW/sTyMbYXn/54/XsjFFKTlRHGlpL4rVzoZqbtWsjnto8SGNorlLrg3UioGCtrM4B+Xmwmf+/wDFYV5LaCRBDKwM8RNtSgOb3a82H9Qt7PCOfjIU=
-  on:
-    repo: peterbe/django-cache-memoize
-  distributions: sdist bdist_wheel
