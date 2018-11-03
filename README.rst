@@ -376,3 +376,14 @@ However, this works...
 
 .. _`django-memoize`: http://pythonhosted.org/django-memoize/
 .. _`Thomas Vavrys`: https://github.com/tvavrys
+
+
+Development
+===========
+
+The most basic thing is to clone the repo and run:
+
+.. code-block:: shell
+
+    pip install -e ".[dev]"
+    tox
