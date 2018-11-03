@@ -202,3 +202,23 @@ def test_cache_memoize_custom_alias():
     assert len(calls_made) == 2
     runmeonce_locmem(10)
     assert len(calls_made) == 2
+
+
+def test_cache_memoize_works_with_custom_key_generator():
+
+    calls_made = []
+
+    def key_generator(*args):
+        key = (':{}' * len(args)).format(*args)
+        return 'custom_namespace:{}'.format(key)
+
+    @cache_memoize(10, key_generator_callable=key_generator)
+    def runmeonce(arg1, arg2):
+        calls_made.append((arg1, arg2))
+        return arg1 + 1
+
+    runmeonce(1, 2)
+    runmeonce(1, 2)
+    assert len(calls_made) == 1
+    runmeonce(1, 3)
+    assert len(calls_made) == 2

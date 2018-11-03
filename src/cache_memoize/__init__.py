@@ -12,6 +12,7 @@ def cache_memoize(
     args_rewrite=None,
     hit_callable=None,
     miss_callable=None,
+    key_generator_callable=None,
     store_result=True,
     cache_alias=DEFAULT_CACHE_ALIAS,
 ):
@@ -25,6 +26,7 @@ def cache_memoize(
     re-represent them for the sake of the cache key.
     :arg function hit_callable: Gets executed if key was in cache.
     :arg function miss_callable: Gets executed if key was *not* in cache.
+    :arg key_generator_callable: Custom cache key name generator.
     :arg bool store_result: If you know the result is not important, just
     that the cache blocked it from running repeatedly, set this to False.
     :arg string cache_alias: The cache alias to use; defaults to 'default'.
@@ -81,7 +83,7 @@ def cache_memoize(
         def noop(*args):
             return args
         args_rewrite = noop
-    
+
     cache = caches[cache_alias]
 
     def decorator(func):
@@ -98,7 +100,10 @@ def cache_memoize(
         @wraps(func)
         def inner(*args, **kwargs):
             refresh = kwargs.pop('_refresh', False)
-            cache_key = _make_cache_key(*args, **kwargs)
+            if key_generator_callable is None:
+                cache_key = _make_cache_key(*args, **kwargs)
+            else:
+                cache_key = key_generator_callable(*args, **kwargs)
             if refresh:
                 result = None
             else:
