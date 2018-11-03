@@ -1,3 +1,9 @@
+0.1.3
+
+- Ability to pass in your own custom cache-key callable function.
+  Thanks @jaumebecks
+  `pull#10 <https://github.com/peterbe/django-cache-memoize/pull/10>`_
+
 0.1.2
 
 - Ability to specify a different-than-default cache alias
