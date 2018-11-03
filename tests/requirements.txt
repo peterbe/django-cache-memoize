@@ -1,3 +1,5 @@
+-e .
+
 pytest
 pytest-coverage
 python-memcached
