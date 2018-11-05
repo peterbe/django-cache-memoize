@@ -5,6 +5,8 @@ from django.core.cache import caches, DEFAULT_CACHE_ALIAS
 
 from django.utils.encoding import force_text, force_bytes
 
+MARKER = object()
+
 
 def cache_memoize(
     timeout,
@@ -99,23 +101,22 @@ def cache_memoize(
 
         @wraps(func)
         def inner(*args, **kwargs):
-            refresh = kwargs.pop('_refresh', False)
             if key_generator_callable is None:
                 cache_key = _make_cache_key(*args, **kwargs)
             else:
                 cache_key = key_generator_callable(*args, **kwargs)
-            if refresh:
-                result = None
+            if kwargs.pop('_refresh', False):
+                result = MARKER
             else:
-                result = cache.get(cache_key)
-            if result is None:
+                result = cache.get(cache_key, MARKER)
+            if result is MARKER:
                 result = func(*args, **kwargs)
                 if not store_result:
                     # Then the result isn't valuable/important to store but
                     # we want to store something. Just to remember that
                     # it has be done.
                     cache.set(cache_key, True, timeout)
-                elif result is not None:
+                else:
                     cache.set(cache_key, result, timeout)
                 if miss_callable:
                     miss_callable(*args, **kwargs)

@@ -222,3 +222,18 @@ def test_cache_memoize_works_with_custom_key_generator():
     assert len(calls_made) == 1
     runmeonce(1, 3)
     assert len(calls_made) == 2
+
+
+def test_cache_memoize_none_value():
+    calls_made = []
+
+    @cache_memoize(10)
+    def runmeonce(a):
+        calls_made.append(a)
+
+    result = runmeonce(20)
+    assert len(calls_made) == 1
+    assert result is None
+    result = runmeonce(20)
+    assert len(calls_made) == 1
+    assert result is None
