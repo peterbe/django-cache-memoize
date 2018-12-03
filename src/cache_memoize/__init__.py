@@ -19,7 +19,7 @@ def cache_memoize(
     """Decorator for memoizing function calls where we use the
     "local cache" to store the result.
 
-    :arg int time: Number of seconds to store the result if not None
+    :arg int timeout: Number of seconds to store the result if not None
     :arg string prefix: If None becomes the function name.
     :arg function args_rewrite: Callable that rewrites the args first useful
     if your function needs nontrivial types but you know a simple way to
