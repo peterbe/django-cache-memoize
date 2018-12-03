@@ -82,22 +82,23 @@ def cache_memoize(
     """
 
     if args_rewrite is None:
+
         def noop(*args):
             return args
+
         args_rewrite = noop
 
     cache = caches[cache_alias]
 
     def decorator(func):
-
         def _make_cache_key(*args, **kwargs):
-            cache_key = ':'.join(
-                [force_text(x) for x in args_rewrite(*args)] +
-                [force_text('{}={}'.format(k, v)) for k, v in kwargs.items()]
+            cache_key = ":".join(
+                [force_text(x) for x in args_rewrite(*args)]
+                + [force_text("{}={}".format(k, v)) for k, v in kwargs.items()]
             )
-            return hashlib.md5(force_bytes(
-                'cache_memoize' + (prefix or func.__name__) + cache_key
-            )).hexdigest()
+            return hashlib.md5(
+                force_bytes("cache_memoize" + (prefix or func.__name__) + cache_key)
+            ).hexdigest()
 
         @wraps(func)
         def inner(*args, **kwargs):
@@ -105,7 +106,7 @@ def cache_memoize(
                 cache_key = _make_cache_key(*args, **kwargs)
             else:
                 cache_key = key_generator_callable(*args, **kwargs)
-            if kwargs.pop('_refresh', False):
+            if kwargs.pop("_refresh", False):
                 result = MARKER
             else:
                 result = cache.get(cache_key, MARKER)
