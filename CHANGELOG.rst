@@ -1,3 +1,9 @@
+0.1.5
+~~~~~
+
+- Fix when using ``_refresh=False`` and the ``.invalidate()``.
+  `pull#19 <https://github.com/peterbe/django-cache-memoize/pull/19>`_
+
 0.1.4
 ~~~~~
 
