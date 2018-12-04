@@ -1,6 +1,14 @@
 # -*- coding: utf-8 -*-
 
+from django.core.cache import cache
+
 from cache_memoize import cache_memoize
+
+
+def test_the_setup():
+    """If this doesn't work, the settings' CACHES isn't working."""
+    cache.set("foo", "bar", 1)
+    assert cache.get("foo") == "bar"
 
 
 def test_cache_memoize():
@@ -180,6 +188,32 @@ def test_invalidate():
     assert len(calls_made) == 2
 
 
+def test_invalidate_with_refresh():
+
+    calls_made = []
+
+    import random
+
+    @cache_memoize(10)
+    def function(argument):
+        calls_made.append(argument)
+        return random.random()
+
+    value = function(100, _refresh=False)
+    assert value == function(100, _refresh=False)
+    assert len(calls_made) == 1
+    new_value = function(100, _refresh=True)
+    assert value != new_value
+    assert len(calls_made) == 2
+
+    function.invalidate(999, _refresh=True)  # different args
+    assert new_value == function(100, _refresh=False)
+    assert len(calls_made) == 2
+    function.invalidate(100, _refresh=0)  # known args
+    assert new_value != function(100, _refresh=False)
+    assert len(calls_made) == 3
+
+
 def test_cache_memoize_custom_alias():
 
     calls_made = []
@@ -189,7 +223,7 @@ def test_cache_memoize_custom_alias():
         return a * 2
 
     runmeonce_default = cache_memoize(10)(runmeonce)
-    runmeonce_locmem = cache_memoize(10, cache_alias="locmem")(runmeonce)
+    runmeonce_locmem = cache_memoize(10, cache_alias="other")(runmeonce)
 
     runmeonce_default(10)
     assert len(calls_made) == 1

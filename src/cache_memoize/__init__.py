@@ -102,11 +102,15 @@ def cache_memoize(
 
         @wraps(func)
         def inner(*args, **kwargs):
+            # The cache key string should never be dependent on special keyword
+            # arguments like _refresh. So extract it into a variable as soon as
+            # possible.
+            _refresh = bool(kwargs.pop("_refresh", False))
             if key_generator_callable is None:
                 cache_key = _make_cache_key(*args, **kwargs)
             else:
                 cache_key = key_generator_callable(*args, **kwargs)
-            if kwargs.pop("_refresh", False):
+            if _refresh:
                 result = MARKER
             else:
                 result = cache.get(cache_key, MARKER)
@@ -126,6 +130,7 @@ def cache_memoize(
             return result
 
         def invalidate(*args, **kwargs):
+            kwargs.pop("_refresh", None)
             cache_key = _make_cache_key(*args, **kwargs)
             cache.delete(cache_key)
 
