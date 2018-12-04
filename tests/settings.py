@@ -51,11 +51,10 @@ TEMPLATES = [
 
 DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}}
 
-
 CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
-        "LOCATION": "127.0.0.1:11211",
+    "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+    "other": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "other-anything",
     },
-    "locmem": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
 }
