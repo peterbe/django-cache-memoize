@@ -91,7 +91,7 @@ def cache_memoize(
     cache = caches[cache_alias]
 
     def decorator(func):
-        def _make_cache_key(*args, **kwargs):
+        def _default_make_cache_key(*args, **kwargs):
             cache_key = ":".join(
                 [force_text(x) for x in args_rewrite(*args)]
                 + [force_text("{}={}".format(k, v)) for k, v in kwargs.items()]
@@ -100,16 +100,15 @@ def cache_memoize(
                 force_bytes("cache_memoize" + (prefix or func.__name__) + cache_key)
             ).hexdigest()
 
+        _make_cache_key = key_generator_callable or _default_make_cache_key
+
         @wraps(func)
         def inner(*args, **kwargs):
             # The cache key string should never be dependent on special keyword
             # arguments like _refresh. So extract it into a variable as soon as
             # possible.
             _refresh = bool(kwargs.pop("_refresh", False))
-            if key_generator_callable is None:
-                cache_key = _make_cache_key(*args, **kwargs)
-            else:
-                cache_key = key_generator_callable(*args, **kwargs)
+            cache_key = _make_cache_key(*args, **kwargs)
             if _refresh:
                 result = MARKER
             else:
