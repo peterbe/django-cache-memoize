@@ -1,3 +1,12 @@
+0.1.6
+~~~~~
+
+- Fetch cache backend later to provide thread-safety
+  `pull#21 <https://github.com/peterbe/django-cache-memoize/pull/21>`_
+
+- Fix cache invalidation with custom key generator
+  `pull#20 <https://github.com/peterbe/django-cache-memoize/pull/20>`_
+
 0.1.5
 ~~~~~
 
