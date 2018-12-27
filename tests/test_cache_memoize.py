@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import random
+from threading import Thread, Lock
 
 from django.core.cache import cache
 
@@ -290,3 +291,31 @@ def test_cache_memoize_none_value():
     result = runmeonce(20)
     assert len(calls_made) == 1
     assert result is None
+
+
+def test_cache_memoize_thread_safety():
+    calls_made = []
+
+    lock = Lock()
+
+    @cache_memoize(10, cache_alias="thread_local", args_rewrite=lambda *args: args[1:])
+    def runmeonce(_calls_made, a):
+        # Do not include _calls_made in the key.
+        # Because we're using threads, call_made cannot be used from the
+        # outer scope, so we need to inject it with the arguments.
+        with lock:
+            return _calls_made.append(a)
+
+    def func_that_calls_runmeonce(*args):
+        runmeonce(*args)
+
+    threads = [
+        Thread(target=func_that_calls_runmeonce, args=(calls_made, 1)) for x in range(2)
+    ]
+    for thread in threads:
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+    assert len(calls_made) == 2

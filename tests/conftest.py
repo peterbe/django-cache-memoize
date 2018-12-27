@@ -7,3 +7,4 @@ def clear_cache():
 
     caches["default"].clear()
     caches["other"].clear()
+    caches["thread_local"].clear()

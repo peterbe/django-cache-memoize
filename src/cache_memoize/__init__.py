@@ -88,8 +88,6 @@ def cache_memoize(
 
         args_rewrite = noop
 
-    cache = caches[cache_alias]
-
     def decorator(func):
         def _default_make_cache_key(*args, **kwargs):
             cache_key = ":".join(
@@ -104,6 +102,9 @@ def cache_memoize(
 
         @wraps(func)
         def inner(*args, **kwargs):
+            # The cache backend is fetched here (not in the outer decorator scope)
+            # to guarantee thread-safety at runtime.
+            cache = caches[cache_alias]
             # The cache key string should never be dependent on special keyword
             # arguments like _refresh. So extract it into a variable as soon as
             # possible.
@@ -129,6 +130,9 @@ def cache_memoize(
             return result
 
         def invalidate(*args, **kwargs):
+            # The cache backend is fetched here (not in the outer decorator scope)
+            # to guarantee thread-safety at runtime.
+            cache = caches[cache_alias]
             kwargs.pop("_refresh", None)
             cache_key = _make_cache_key(*args, **kwargs)
             cache.delete(cache_key)

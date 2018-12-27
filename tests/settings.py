@@ -57,4 +57,5 @@ CACHES = {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         "LOCATION": "other-anything",
     },
+    "thread_local": {"BACKEND": "tests.backends.ThreadLocalCache"},
 }
