@@ -286,7 +286,7 @@ Compatibility
 
 * Python 3.4, 3.5, 3.6, 3.7
 
-* Django 1.8, 1.9, 1.10, 1.11, 2.0, 2.1
+* Django 1.11, 2.0, 2.1
 
 Check out the `tox.ini`_ file for more up-to-date compatibility by
 test coverage.
