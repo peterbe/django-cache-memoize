@@ -18,6 +18,7 @@ setup(
     url="https://github.com/peterbe/django-cache-memoize",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
+    python_requires=">=3.4",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment :: Mozilla",
