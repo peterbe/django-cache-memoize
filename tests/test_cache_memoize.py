@@ -39,6 +39,9 @@ def test_cache_memoize():
     runmeonce("A" * 200, "B" * 200, {"C" * 100: "D" * 100})
     assert len(calls_made) == 5
 
+
+def test_prefixes():
+    calls_made = []
     # different prefixes
     @cache_memoize(10, prefix="first")
     def foo(value):
@@ -51,9 +54,13 @@ def test_cache_memoize():
         return "ho"
 
     foo("hey")
+    assert len(calls_made) == 1
     bar("hey")
-    assert len(calls_made) == 7
+    assert len(calls_made) == 2
 
+
+def test_no_store_result():
+    calls_made = []
     # Test when you don't care about the result
     @cache_memoize(10, store_result=False, prefix="different")
     def returnnothing(a, b, k="bla"):
@@ -62,7 +69,7 @@ def test_cache_memoize():
 
     returnnothing(1, 2)
     returnnothing(1, 2)
-    assert len(calls_made) == 8
+    assert len(calls_made) == 1
 
 
 def test_cache_memoize_hit_miss_callables():
