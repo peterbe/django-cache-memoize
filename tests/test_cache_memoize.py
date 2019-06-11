@@ -2,6 +2,7 @@
 import random
 from threading import Thread, Lock
 
+import pytest
 from django.core.cache import cache
 
 from cache_memoize import cache_memoize
@@ -70,6 +71,27 @@ def test_no_store_result():
     returnnothing(1, 2)
     returnnothing(1, 2)
     assert len(calls_made) == 1
+
+
+@pytest.mark.parametrize(
+    "bits", [("a", "b", "c"), ("ä", "á", "ö"), ("ë".encode(), b"\02", b"i")]
+)
+def test_colons(bits):
+    calls_made = []
+
+    @cache_memoize(10)
+    def fun(a, b, k="bla"):
+        calls_made.append((a, b, k))
+        return (a, b, k)
+
+    sep = ":"
+    if isinstance(bits[0], bytes):
+        sep = sep.encode()
+    a1, a2 = (sep.join(bits[:2]), bits[2])
+    b1, b2 = (bits[0], sep.join(bits[1:]))
+    fun(a1, a2)
+    fun(b1, b2)
+    assert len(calls_made) == 2
 
 
 def test_cache_memoize_hit_miss_callables():
