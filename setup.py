@@ -14,7 +14,7 @@ setup(
     long_description=open(path.join(_here, "README.rst")).read(),
     author="Peter Bengtsson",
     author_email="mail@peterbe.com",
-    license="MPL 2.0",
+    license="MPL-2.0",
     url="https://github.com/peterbe/django-cache-memoize",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
