@@ -2,6 +2,7 @@
 import random
 from threading import Thread, Lock
 
+import pytest
 from django.core.cache import cache
 
 from cache_memoize import cache_memoize
@@ -39,6 +40,9 @@ def test_cache_memoize():
     runmeonce("A" * 200, "B" * 200, {"C" * 100: "D" * 100})
     assert len(calls_made) == 5
 
+
+def test_prefixes():
+    calls_made = []
     # different prefixes
     @cache_memoize(10, prefix="first")
     def foo(value):
@@ -51,9 +55,13 @@ def test_cache_memoize():
         return "ho"
 
     foo("hey")
+    assert len(calls_made) == 1
     bar("hey")
-    assert len(calls_made) == 7
+    assert len(calls_made) == 2
 
+
+def test_no_store_result():
+    calls_made = []
     # Test when you don't care about the result
     @cache_memoize(10, store_result=False, prefix="different")
     def returnnothing(a, b, k="bla"):
@@ -62,7 +70,28 @@ def test_cache_memoize():
 
     returnnothing(1, 2)
     returnnothing(1, 2)
-    assert len(calls_made) == 8
+    assert len(calls_made) == 1
+
+
+@pytest.mark.parametrize(
+    "bits", [("a", "b", "c"), ("ä", "á", "ö"), ("ë".encode(), b"\02", b"i")]
+)
+def test_colons(bits):
+    calls_made = []
+
+    @cache_memoize(10)
+    def fun(a, b, k="bla"):
+        calls_made.append((a, b, k))
+        return (a, b, k)
+
+    sep = ":"
+    if isinstance(bits[0], bytes):
+        sep = sep.encode()
+    a1, a2 = (sep.join(bits[:2]), bits[2])
+    b1, b2 = (bits[0], sep.join(bits[1:]))
+    fun(a1, a2)
+    fun(b1, b2)
+    assert len(calls_made) == 2
 
 
 def test_cache_memoize_hit_miss_callables():
