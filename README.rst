@@ -239,7 +239,7 @@ The ``cache_alias`` argument allows you to use a cache other than the default.
 Cache invalidation
 ~~~~~~~~~~~~~~~~~~
 
-When you want to "undo" some caching done, you simple call the function
+When you want to "undo" some caching done, you simply call the function
 again with the same arguments except you add ``.invalidate`` to the function.
 
 .. code-block:: python
