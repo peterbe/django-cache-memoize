@@ -19,6 +19,10 @@ django-cache-memoize
 
 Django utility for a memoization decorator that uses the Django cache framework.
 
+For versions of Python and Django, check out `the tox.ini file`_.
+
+.. _`the tox.ini file`: https://github.com/peterbe/django-cache-memoize/blob/master/tox.ini
+
 Key Features
 ------------
 
