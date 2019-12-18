@@ -2,6 +2,8 @@
 django-cache-memoize
 ====================
 
+* License: MPL 2.0
+
 .. image:: https://travis-ci.org/peterbe/django-cache-memoize.svg?branch=master
    :alt: Build Status
    :target: https://travis-ci.org/peterbe/django-cache-memoize
