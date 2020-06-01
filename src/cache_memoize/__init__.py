@@ -97,7 +97,7 @@ def cache_memoize(
                 + [quote("{}={}".format(k, v)) for k, v in kwargs.items()]
             )
             return hashlib.md5(
-                force_bytes("cache_memoize" + (prefix or func.__name__) + cache_key)
+                force_bytes("cache_memoize" + (prefix or func.__qualname__) + cache_key)
             ).hexdigest()
 
         _make_cache_key = key_generator_callable or _default_make_cache_key
