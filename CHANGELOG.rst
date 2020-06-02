@@ -1,3 +1,10 @@
+0.1.7
+~~~~~
+
+- Use a functions's ``__qualname__`` instead to avoid clases with functions
+  of the same name.
+  `pull#41 <https://github.com/peterbe/django-cache-memoize/pull/41>`_
+
 0.1.6
 ~~~~~
 
