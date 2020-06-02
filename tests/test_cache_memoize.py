@@ -43,6 +43,7 @@ def test_cache_memoize():
 
 def test_prefixes():
     calls_made = []
+
     # different prefixes
     @cache_memoize(10, prefix="first")
     def foo(value):
@@ -62,6 +63,7 @@ def test_prefixes():
 
 def test_no_store_result():
     calls_made = []
+
     # Test when you don't care about the result
     @cache_memoize(10, store_result=False, prefix="different")
     def returnnothing(a, b, k="bla"):
@@ -190,7 +192,7 @@ def test_cache_memoize_different_functions_same_arguments():
     # If you set the prefix, you can cross wire functions.
     # Note sure why you'd ever want to do this though
 
-    @cache_memoize(10, prefix=function_2.__name__)
+    @cache_memoize(10, prefix=function_2.__qualname__)
     def function_3(a):
         raise Exception
 
