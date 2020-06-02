@@ -43,6 +43,7 @@ def test_cache_memoize():
 
 def test_prefixes():
     calls_made = []
+
     # different prefixes
     @cache_memoize(10, prefix="first")
     def foo(value):
@@ -62,6 +63,7 @@ def test_prefixes():
 
 def test_no_store_result():
     calls_made = []
+
     # Test when you don't care about the result
     @cache_memoize(10, store_result=False, prefix="different")
     def returnnothing(a, b, k="bla"):
