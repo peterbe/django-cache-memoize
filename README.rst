@@ -224,6 +224,33 @@ returning ``True``.
         # won't be called more than once every 1000 seconds.
         send_tax_returns(request.user)
 
+``cache_exceptions``
+~~~~~~~~~~~~~~~~~~~~
+
+This is useful if you have a function that can return an exception as valid
+result. This option allows you to cache said exceptions like any other result.
+Only exceptions raised from the list of classes provided as cache_exceptions
+are cached, all others are propagated immediatly.
+
+.. code-block:: python
+
+    from cache_memoize import cache_memoize
+
+    class InvalidParameter(Exception):
+        pass
+
+    @cache_memoize(1000, cache_exceptions=[InvalidParameter])
+    def run_calculations(parameter):
+        # something something time consuming
+        ...
+        raise InvalidParameter
+
+    run_calculations(1)
+
+    # run_calculations will now raise InvalidParameter immediately
+    # without running the expensive calculation
+    run_calculations(1)
+
 ``cache_alias``
 ~~~~~~~~~~~~~~~
 

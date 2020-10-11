@@ -18,7 +18,7 @@ def cache_memoize(
     miss_callable=None,
     key_generator_callable=None,
     store_result=True,
-    cache_exceptions=False,
+    cache_exceptions=None,
     cache_alias=DEFAULT_CACHE_ALIAS,
 ):
     """Decorator for memoizing function calls where we use the
@@ -34,8 +34,8 @@ def cache_memoize(
     :arg key_generator_callable: Custom cache key name generator.
     :arg bool store_result: If you know the result is not important, just
     that the cache blocked it from running repeatedly, set this to False.
-    :arg bool cache_exceptions: To store any raised exceptions in the cache
-    set this to True, to raise them immediately, set to False.
+    :arg bool cache_exceptions: Any exception raised from classes provided in
+    this list will be cached, all other will be propagated.
     :arg string cache_alias: The cache alias to use; defaults to 'default'.
 
     Usage::
@@ -124,7 +124,7 @@ def cache_memoize(
                 try:
                     result = func(*args, **kwargs)
                 except Exception as exception:
-                    if cache_exceptions:
+                    if exception.__class__ in (cache_exceptions or []):
                         result = exception
                     else:
                         raise exception
@@ -140,6 +140,9 @@ def cache_memoize(
                     miss_callable(*args, **kwargs)
             elif hit_callable:
                 hit_callable(*args, **kwargs)
+
+            if result.__class__ in (cache_exceptions or []):
+                raise result
             return result
 
         def invalidate(*args, **kwargs):

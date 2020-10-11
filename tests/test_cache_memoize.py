@@ -355,18 +355,18 @@ def test_cache_memoize_thread_safety():
 def test_cache_exceptions():
     calls_made = []
 
-    @cache_memoize(10, cache_exceptions=True, prefix="cache_exceptions")
-    def raise_test_exception(a):
-        calls_made.append(a)
-        raise Exception
+    @cache_memoize(10, cache_exceptions=[Exception], prefix="cache_exceptions")
+    def raise_test_exception(exception):
+        calls_made.append(exception)
+        raise exception
 
     try:
-        raise_test_exception(1)
+        raise_test_exception(Exception)
     except:
         pass
 
     try:
-        raise_test_exception(1)
+        raise_test_exception(Exception)
     except:
         pass
 
@@ -376,19 +376,69 @@ def test_cache_exceptions():
 def test_dont_cache_exceptions():
     calls_made = []
 
-    @cache_memoize(10, cache_exceptions=False, prefix="dont_cache_exceptions")
-    def raise_test_exception(a):
-        calls_made.append(a)
-        raise Exception
+    @cache_memoize(10, prefix="dont_cache_exceptions")
+    def raise_test_exception(exception):
+        calls_made.append(exception)
+        raise exception
 
     try:
-        raise_test_exception(1)
+        raise_test_exception(Exception)
     except:
         pass
 
     try:
-        raise_test_exception(1)
+        raise_test_exception(Exception)
     except:
         pass
 
     assert len(calls_made) == 2
+
+
+def test_cache_specific_exception():
+    calls_made = []
+
+    @cache_memoize(10, cache_exceptions=[IndexError], prefix="cache_specifc_exceptions")
+    def raise_test_exception(exception):
+        calls_made.append(exception)
+        raise exception
+
+    try:
+        raise_test_exception(Exception)
+    except:
+        pass
+
+    try:
+        raise_test_exception(IndexError)
+    except:
+        pass
+
+    try:
+        raise_test_exception(IndexError)
+    except:
+        pass
+
+    assert len(calls_made) == 2
+
+
+def test_exceptions_raised_not_returned():
+
+    @cache_memoize(10, cache_exceptions=[IndexError], prefix="cache_specifc_exceptions")
+    def raise_test_exception(exception):
+        raise exception
+
+    try:
+        a = raise_test_exception(Exception)
+    except:
+        a = 'raised'
+
+    try:
+        b = raise_test_exception(IndexError)
+    except:
+        b = 'raised'
+
+    try:
+        c = raise_test_exception(IndexError)
+    except:
+        c = 'raised'
+
+    assert a == 'raised' and b == 'raised' and  c == 'raised'
