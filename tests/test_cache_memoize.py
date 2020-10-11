@@ -350,3 +350,45 @@ def test_cache_memoize_thread_safety():
         thread.join()
 
     assert len(calls_made) == 2
+
+
+def test_cache_exceptions():
+    calls_made = []
+
+    @cache_memoize(10, cache_exceptions=True, prefix="cache_exceptions")
+    def raise_test_exception(a):
+        calls_made.append(a)
+        raise Exception
+
+    try:
+        raise_test_exception(1)
+    except:
+        pass
+
+    try:
+        raise_test_exception(1)
+    except:
+        pass
+
+    assert len(calls_made) == 1
+
+
+def test_dont_cache_exceptions():
+    calls_made = []
+
+    @cache_memoize(10, cache_exceptions=False, prefix="dont_cache_exceptions")
+    def raise_test_exception(a):
+        calls_made.append(a)
+        raise Exception
+
+    try:
+        raise_test_exception(1)
+    except:
+        pass
+
+    try:
+        raise_test_exception(1)
+    except:
+        pass
+
+    assert len(calls_made) == 2

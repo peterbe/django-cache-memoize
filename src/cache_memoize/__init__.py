@@ -18,6 +18,7 @@ def cache_memoize(
     miss_callable=None,
     key_generator_callable=None,
     store_result=True,
+    cache_exceptions=False,
     cache_alias=DEFAULT_CACHE_ALIAS,
 ):
     """Decorator for memoizing function calls where we use the
@@ -33,6 +34,8 @@ def cache_memoize(
     :arg key_generator_callable: Custom cache key name generator.
     :arg bool store_result: If you know the result is not important, just
     that the cache blocked it from running repeatedly, set this to False.
+    :arg bool cache_exceptions: To store any raised exceptions in the cache
+    set this to True, to raise them immediately, set to False.
     :arg string cache_alias: The cache alias to use; defaults to 'default'.
 
     Usage::
@@ -117,7 +120,15 @@ def cache_memoize(
             else:
                 result = cache.get(cache_key, MARKER)
             if result is MARKER:
-                result = func(*args, **kwargs)
+
+                try:
+                    result = func(*args, **kwargs)
+                except Exception as exception:
+                    if cache_exceptions:
+                        result = exception
+                    else:
+                        raise exception
+
                 if not store_result:
                     # Then the result isn't valuable/important to store but
                     # we want to store something. Just to remember that
