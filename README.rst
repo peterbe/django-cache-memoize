@@ -230,7 +230,7 @@ returning ``True``.
 This is useful if you have a function that can return an exception as valid
 result. This option allows you to cache said exceptions like any other result.
 Only exceptions raised from the list of classes provided as cache_exceptions
-are cached, all others are propagated immediatly.
+are cached, all others are propagated immediately.
 
 .. code-block:: python
 
@@ -239,7 +239,7 @@ are cached, all others are propagated immediatly.
     class InvalidParameter(Exception):
         pass
 
-    @cache_memoize(1000, cache_exceptions=[InvalidParameter])
+    @cache_memoize(1000, cache_exceptions=(InvalidParameter, ))
     def run_calculations(parameter):
         # something something time consuming
         ...

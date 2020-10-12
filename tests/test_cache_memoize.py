@@ -352,25 +352,16 @@ def test_cache_memoize_thread_safety():
     assert len(calls_made) == 2
 
 
-def test_cache_exceptions():
-    calls_made = []
+class TestException(Exception):
+    pass
 
-    @cache_memoize(10, cache_exceptions=[Exception], prefix="cache_exceptions")
-    def raise_test_exception(exception):
-        calls_made.append(exception)
-        raise exception
 
-    try:
-        raise_test_exception(Exception)
-    except:
-        pass
+class DerivedTestException(TestException):
+    pass
 
-    try:
-        raise_test_exception(Exception)
-    except:
-        pass
 
-    assert len(calls_made) == 1
+class SecondTestException(Exception):
+    pass
 
 
 def test_dont_cache_exceptions():
@@ -381,64 +372,46 @@ def test_dont_cache_exceptions():
         calls_made.append(exception)
         raise exception
 
-    try:
-        raise_test_exception(Exception)
-    except:
-        pass
-
-    try:
-        raise_test_exception(Exception)
-    except:
-        pass
-
+    # Caching of exceptions i turned off. These should both call the function
+    # and propagate the exception.
+    calls_made = []
+    with pytest.raises(TestException):
+        raise_test_exception(TestException)
+    with pytest.raises(TestException):
+        raise_test_exception(TestException)
     assert len(calls_made) == 2
 
 
-def test_cache_specific_exception():
+def test_cache_exception():
     calls_made = []
 
-    @cache_memoize(10, cache_exceptions=[IndexError], prefix="cache_specifc_exceptions")
+    @cache_memoize(10, cache_exceptions=(TestException, ), prefix="cache_exceptions")
     def raise_test_exception(exception):
         calls_made.append(exception)
         raise exception
 
-    try:
-        raise_test_exception(Exception)
-    except:
-        pass
+    # The first call should be cached, raised and the second call should
+    # re-raise the cached exception without calling the cached function.
+    calls_made = []
+    with pytest.raises(TestException):
+        raise_test_exception(TestException)
+    with pytest.raises(TestException):
+        raise_test_exception(TestException)
+    assert len(calls_made) == 1
 
-    try:
-        raise_test_exception(IndexError)
-    except:
-        pass
+    # DerivedTestException is a subclass of TestException and should be cached.
+    calls_made = []
+    with pytest.raises(DerivedTestException):
+        raise_test_exception(DerivedTestException)
+    with pytest.raises(DerivedTestException):
+        raise_test_exception(DerivedTestException)
+    assert len(calls_made) == 1
 
-    try:
-        raise_test_exception(IndexError)
-    except:
-        pass
-
+    # SecondTestException is not a subclass, so the call shouldn't be cached.
+    calls_made = []
+    with pytest.raises(SecondTestException):
+        raise_test_exception(SecondTestException)
+    with pytest.raises(SecondTestException):
+        raise_test_exception(SecondTestException)
     assert len(calls_made) == 2
 
-
-def test_exceptions_raised_not_returned():
-
-    @cache_memoize(10, cache_exceptions=[IndexError], prefix="cache_specifc_exceptions")
-    def raise_test_exception(exception):
-        raise exception
-
-    try:
-        a = raise_test_exception(Exception)
-    except:
-        a = 'raised'
-
-    try:
-        b = raise_test_exception(IndexError)
-    except:
-        b = 'raised'
-
-    try:
-        c = raise_test_exception(IndexError)
-    except:
-        c = 'raised'
-
-    assert a == 'raised' and b == 'raised' and  c == 'raised'
