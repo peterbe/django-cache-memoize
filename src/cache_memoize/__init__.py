@@ -34,7 +34,10 @@ def cache_memoize(
     :arg key_generator_callable: Custom cache key name generator.
     :arg bool store_result: If you know the result is not important, just
     that the cache blocked it from running repeatedly, set this to False.
-    :arg bool cache_exceptions: Any exception raised from classes provided in
+    :arg Exception cache_exceptions: Accepts an Exception or a tuple of
+    Exceptions. If the cached function raises any of these exceptions is the
+    exception cached and raised as normal. Subsequent cached calls will
+    immediately re-raise the exception and the function will not be executed.
     this tuple will be cached, all other will be propagated.
     :arg string cache_alias: The cache alias to use; defaults to 'default'.
 
@@ -125,11 +128,8 @@ def cache_memoize(
                 # catch it, else let it propagate.
                 try:
                     result = func(*args, **kwargs)
-                except Exception as exception:
-                    if isinstance(exception, cache_exceptions):
-                        result = exception
-                    else:
-                        raise exception
+                except cache_exceptions as exception:
+                    result = exception
 
                 if not store_result:
                     # Then the result isn't valuable/important to store but

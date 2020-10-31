@@ -227,29 +227,40 @@ returning ``True``.
 ``cache_exceptions``
 ~~~~~~~~~~~~~~~~~~~~
 
-This is useful if you have a function that can return an exception as valid
-result. This option allows you to cache said exceptions like any other result.
+This is useful if you have a function that can raise an exception as valid
+result. If the cached function raises any of specified exceptions is the
+exception cached and raised as normal. Subsequent cached calls will
+immediately re-raise the exception and the function will not be executed.
+``cache_exceptions`` accepts an Exception or a tuple of Exceptions.
+
+
+This option allows you to cache said exceptions like any other result.
 Only exceptions raised from the list of classes provided as cache_exceptions
 are cached, all others are propagated immediately.
 
 .. code-block:: python
 
-    from cache_memoize import cache_memoize
+    >>> from cache_memoize import cache_memoize
 
-    class InvalidParameter(Exception):
-        pass
+    >>> class InvalidParameter(Exception):
+    ...     pass
 
-    @cache_memoize(1000, cache_exceptions=(InvalidParameter, ))
-    def run_calculations(parameter):
-        # something something time consuming
-        ...
-        raise InvalidParameter
+    >>> @cache_memoize(1000, cache_exceptions=(InvalidParameter, ))
+    ... def run_calculations(parameter):
+    ...     # something something time consuming
+    ...     raise InvalidParameter
 
-    run_calculations(1)
+    >>> run_calculations(1)
+    Traceback (most recent call last):
+    ...
+    InvalidParameter
 
     # run_calculations will now raise InvalidParameter immediately
     # without running the expensive calculation
-    run_calculations(1)
+    >>> run_calculations(1)
+    Traceback (most recent call last):
+    ...
+    InvalidParameter
 
 ``cache_alias``
 ~~~~~~~~~~~~~~~
