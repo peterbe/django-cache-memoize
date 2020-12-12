@@ -402,7 +402,10 @@ def test_cache_exceptions():
     calls_made = []
 
     # It should be possible to specify a tuple of exceptions to cache.
-    @cache_memoize(10, cache_exceptions=(TestException, SecondTestException), prefix="cache_exceptions")
+    @cache_memoize(
+        10, cache_exceptions=(TestException, SecondTestException),
+        prefix="cache_exceptions"
+    )
     def raise_test_exception():
         calls_made.append(1)
         raise TestException
@@ -446,4 +449,3 @@ def test_dont_cache_unrelated_exceptions():
     with pytest.raises(SecondTestException):
         raise_test_exception()
     assert len(calls_made) == 2
-
