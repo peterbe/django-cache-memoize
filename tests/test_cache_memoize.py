@@ -403,7 +403,8 @@ def test_cache_exceptions():
 
     # It should be possible to specify a tuple of exceptions to cache.
     @cache_memoize(
-        10, cache_exceptions=(TestException, SecondTestException),
+        10,
+        cache_exceptions=(TestException, SecondTestException),
         prefix="cache_exceptions"
     )
     def raise_test_exception():
