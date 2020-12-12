@@ -405,7 +405,7 @@ def test_cache_exceptions():
     @cache_memoize(
         10,
         cache_exceptions=(TestException, SecondTestException),
-        prefix="cache_exceptions"
+        prefix="cache_exceptions",
     )
     def raise_test_exception():
         calls_made.append(1)
