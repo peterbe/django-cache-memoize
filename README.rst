@@ -4,17 +4,13 @@ django-cache-memoize
 
 * License: MPL 2.0
 
-.. image:: https://travis-ci.org/peterbe/django-cache-memoize.svg?branch=master
+.. image:: https://github.com/peterbe/django-cache-memoize/workflows/Python/badge.svg
    :alt: Build Status
-   :target: https://travis-ci.org/peterbe/django-cache-memoize
+   :target: https://github.com/peterbe/django-cache-memoize/actions?query=workflow%3APython
 
 .. image:: https://readthedocs.org/projects/django-cache-memoize/badge/?version=latest
    :alt: Documentation Status
    :target: https://django-cache-memoize.readthedocs.io/en/latest/?badge=latest
-
-.. image:: https://codecov.io/gh/peterbe/django-cache-memoize/branch/master/graph/badge.svg
-   :alt: Code Coverage
-   :target: https://codecov.io/gh/peterbe/django-cache-memoize
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
   :target: https://github.com/ambv/black
