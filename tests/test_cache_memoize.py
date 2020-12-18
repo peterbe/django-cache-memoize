@@ -243,6 +243,15 @@ def test_invalidate_with_refresh():
     assert len(calls_made) == 3
 
 
+def test_get_cache_key():
+    @cache_memoize(10)
+    def funky(argument):
+        pass
+
+    assert funky.get_cache_key(100) == "f0b86356861e088e2058855e95ee8981"
+    assert funky.get_cache_key(100, _refresh=True) == "f0b86356861e088e2058855e95ee8981"
+
+
 def test_cache_memoize_custom_alias():
 
     calls_made = []
@@ -307,6 +316,14 @@ def test_invalidate_with_custom_key_generator():
     runmeonce.invalidate(1, 2)  # known args
     assert runmeonce(1, 2)
     assert len(calls_made) == 2
+
+
+def test_get_cache_key_with_custom_key_generator():
+    @cache_memoize(10, key_generator_callable=lambda x: x * 10)
+    def funky(argument):
+        pass
+
+    assert funky.get_cache_key("1") == "1111111111"
 
 
 def test_cache_memoize_none_value():
