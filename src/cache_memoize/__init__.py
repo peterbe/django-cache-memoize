@@ -157,7 +157,12 @@ def cache_memoize(
             cache_key = _make_cache_key(*args, **kwargs)
             cache.delete(cache_key)
 
+        def get_cache_key(*args, **kwargs):
+            kwargs.pop("_refresh", None)
+            return _make_cache_key(*args, **kwargs)
+
         inner.invalidate = invalidate
+        inner.get_cache_key = get_cache_key
         return inner
 
     return decorator
