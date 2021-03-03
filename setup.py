@@ -6,7 +6,7 @@ _here = path.dirname(__file__)
 
 setup(
     name="django-cache-memoize",
-    version="0.1.7",
+    version="0.1.8",
     description=(
         "Django utility for a memoization decorator that uses the Django "
         "cache framework."

@@ -1,3 +1,11 @@
+0.1.8
+~~~~~
+
+- New `get_cache_key` method for findout out what a decorated function's
+  cache key would be.
+  `pull#44 <https://github.com/peterbe/django-cache-memoize/pull/44>`_
+  Thanks @benweatherman
+
 0.1.7
 ~~~~~
 
