@@ -7,6 +7,9 @@ from django.core.cache import cache
 
 from cache_memoize import cache_memoize
 
+from .dummy_package import a as dummy_a
+from .dummy_package import b as dummy_b
+
 
 def test_the_setup():
     """If this doesn't work, the settings' CACHES isn't working."""
@@ -39,6 +42,31 @@ def test_cache_memoize():
     # And shouldn't be a problem even if the arguments are really long
     runmeonce("A" * 200, "B" * 200, {"C" * 100: "D" * 100})
     assert len(calls_made) == 5
+
+
+@pytest.mark.parametrize(
+    ("obj_1", "obj_2"),
+    [
+        # Check identically named entities from different modules
+        (dummy_a.func, dummy_b.func),
+        (dummy_a.decorated_func, dummy_b.decorated_func),
+        (dummy_a.DummyClass().func, dummy_b.DummyClass().func),
+        (dummy_a.DummyClass().decorated_func, dummy_b.DummyClass().decorated_func),
+        #
+        # Check identically named entities from different scopes
+        (dummy_a.func, dummy_a.DummyClass().func),
+        (dummy_a.func, dummy_a.func_factory()),
+        #
+        # Check decorated entities
+        (dummy_a.decorated_func, dummy_a.another_decorated_func),
+        (
+            dummy_a.DummyClass().decorated_func,
+            dummy_a.DummyClass().another_decorated_func,
+        ),
+    ],
+)
+def test_default_prefix_uniqueness(obj_1, obj_2):
+    assert obj_1.get_cache_key() != obj_2.get_cache_key()
 
 
 def test_prefixes():
@@ -192,7 +220,9 @@ def test_cache_memoize_different_functions_same_arguments():
     # If you set the prefix, you can cross wire functions.
     # Note sure why you'd ever want to do this though
 
-    @cache_memoize(10, prefix=function_2.__qualname__)
+    @cache_memoize(
+        10, prefix=".".join((function_2.__module__, function_2.__qualname__))
+    )
     def function_3(a):
         raise Exception
 
@@ -248,8 +278,8 @@ def test_get_cache_key():
     def funky(argument):
         pass
 
-    assert funky.get_cache_key(100) == "f0b86356861e088e2058855e95ee8981"
-    assert funky.get_cache_key(100, _refresh=True) == "f0b86356861e088e2058855e95ee8981"
+    assert funky.get_cache_key(100) == "d33e7fad5d1d04da8e588a9ee348644a"
+    assert funky.get_cache_key(100, _refresh=True) == "d33e7fad5d1d04da8e588a9ee348644a"
 
 
 def test_cache_memoize_custom_alias():
