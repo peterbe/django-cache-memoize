@@ -107,25 +107,62 @@ def test_no_store_result():
     assert len(calls_made) == 1
 
 
-@pytest.mark.parametrize(
-    "bits", [("a", "b", "c"), ("ä", "á", "ö"), ("ë".encode(), b"\02", b"i")]
-)
-def test_colons(bits):
-    calls_made = []
+class TestDefaultCacheKeyQuoting:
+    @pytest.mark.parametrize(
+        "bits", [("a", "b", "c"), ("ä", "á", "ö"), ("ë".encode(), b"\02", b"i")]
+    )
+    def test_colons_quoting(self, bits):
+        calls_made = []
 
-    @cache_memoize(10)
-    def fun(a, b, k="bla"):
-        calls_made.append((a, b, k))
-        return (a, b, k)
+        @cache_memoize(10)
+        def fun(a, b, k="bla"):
+            calls_made.append((a, b, k))
+            return (a, b, k)
 
-    sep = ":"
-    if isinstance(bits[0], bytes):
-        sep = sep.encode()
-    a1, a2 = (sep.join(bits[:2]), bits[2])
-    b1, b2 = (bits[0], sep.join(bits[1:]))
-    fun(a1, a2)
-    fun(b1, b2)
-    assert len(calls_made) == 2
+        sep = ":"
+        if isinstance(bits[0], bytes):
+            sep = sep.encode()
+        a1, a2 = (sep.join(bits[:2]), bits[2])
+        b1, b2 = (bits[0], sep.join(bits[1:]))
+        fun(a1, a2)
+        fun(b1, b2)
+        assert len(calls_made) == 2
+
+    @pytest.mark.parametrize(
+        ("arguments_1", "arguments_2"),
+        [
+            (
+                (("a", "b", "c"), {}),
+                (("a:b:c",), {}),
+            ),
+            (
+                (("a", "b"), {"c": "d"}),
+                (("a",), {"b:c": "d"}),
+            ),
+            (
+                (("a",), {"b": "c"}),
+                (("a", "b=c"), {}),
+            ),
+            (
+                ((), {"a": "b=c"}),
+                ((), {"a=b": "c"}),
+            ),
+        ],
+    )
+    def test_general_quoting(self, arguments_1, arguments_2):
+        calls_made = []
+
+        @cache_memoize(10)
+        def fun(*args, **kwargs):
+            calls_made.append((args, kwargs))
+
+        args, kwargs = arguments_1
+        fun(*args, **kwargs)
+
+        args, kwargs = arguments_2
+        fun(*args, **kwargs)
+
+        assert calls_made == [arguments_1, arguments_2]
 
 
 def test_cache_memoize_hit_miss_callables():
