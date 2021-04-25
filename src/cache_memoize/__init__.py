@@ -100,7 +100,7 @@ def cache_memoize(
         def _default_make_cache_key(*args, **kwargs):
             cache_key = ":".join(
                 [quote(str(x)) for x in args_rewrite(*args)]
-                + [quote("{}={}".format(k, v)) for k, v in kwargs.items()]
+                + [quote("{}={}".format(k, v)) for k, v in sorted(kwargs.items())]
             )
             prefix_ = prefix or ".".join((func.__module__ or "", func.__qualname__))
             return hashlib.md5(

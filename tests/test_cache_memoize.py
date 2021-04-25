@@ -22,26 +22,30 @@ def test_cache_memoize():
     calls_made = []
 
     @cache_memoize(10)
-    def runmeonce(a, b, k="bla"):
-        calls_made.append((a, b, k))
-        return "{} {} {}".format(a, b, k)  # sample implementation
+    def runmeonce(a, b, k1="bla", k2=None):
+        calls_made.append((a, b, k1, k2))
+        return "{} {} {} {}".format(a, b, k1, k2)  # sample implementation
 
     runmeonce(1, 2)
     runmeonce(1, 2)
     assert len(calls_made) == 1
     runmeonce(1, 3)
     assert len(calls_made) == 2
-    # should work with most basic types
+    # Should work with most basic types
     runmeonce(1.1, "foo")
     runmeonce(1.1, "foo")
     assert len(calls_made) == 3
-    # even more "advanced" types
-    runmeonce(1.1, "foo", k=list("åäö"))
-    runmeonce(1.1, "foo", k=list("åäö"))
+    # Even more "advanced" types
+    runmeonce(1.1, "foo", k1=list("åäö"))
+    runmeonce(1.1, "foo", k1=list("åäö"))
     assert len(calls_made) == 4
     # And shouldn't be a problem even if the arguments are really long
     runmeonce("A" * 200, "B" * 200, {"C" * 100: "D" * 100})
     assert len(calls_made) == 5
+    # The order of the keyword arguments doesn't matter
+    runmeonce(1, 2, k1=3, k2=4)
+    runmeonce(1, 2, k2=4, k1=3)
+    assert len(calls_made) == 6
 
 
 @pytest.mark.parametrize(
