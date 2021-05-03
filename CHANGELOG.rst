@@ -1,3 +1,8 @@
+- Fix potential problem with default cache key generation (sort order,
+  possible identical key, quoting of paramters with ``=`` sign in string)
+  `pull#50 <https://github.com/peterbe/django-cache-memoize/pull/50>`_
+  Thanks @kri-k
+
 0.1.8
 ~~~~~
 
