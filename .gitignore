@@ -12,3 +12,4 @@ dist
 django_cache_memoize.egg-info
 .venv
 .vscode
+.idea
