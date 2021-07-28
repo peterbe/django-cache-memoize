@@ -1,3 +1,9 @@
+0.1.10
+
+- Support for Django 3.2
+  `pull#51 <https://github.com/peterbe/django-cache-memoize/pull/51>`
+  Thanks @UsamaSadiq
+
 0.1.9
 
 - Fix potential problem with default cache key generation (sort order,
