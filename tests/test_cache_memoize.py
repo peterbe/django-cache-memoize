@@ -319,8 +319,8 @@ def test_get_cache_key():
     def funky(argument):
         pass
 
-    assert funky.get_cache_key(100) == "d33e7fad5d1d04da8e588a9ee348644a"
-    assert funky.get_cache_key(100, _refresh=True) == "d33e7fad5d1d04da8e588a9ee348644a"
+    assert funky.get_cache_key(100) == "eb96668ba0d14dc7748161fb1d000239"
+    assert funky.get_cache_key(100, _refresh=True) == "eb96668ba0d14dc7748161fb1d000239"
 
 
 def test_cache_memoize_custom_alias():
@@ -395,6 +395,21 @@ def test_get_cache_key_with_custom_key_generator():
         pass
 
     assert funky.get_cache_key("1") == "1111111111"
+
+
+def test_get_cache_key_with_extra_components():
+    def funky(argument):
+        pass
+
+    fn1 = cache_memoize(10, extra={"version": 1})(funky)
+    fn2 = cache_memoize(10, extra={"version": 1})(funky)
+    fn3 = cache_memoize(10, extra={"version": 2})(funky)
+    fn4 = cache_memoize(10, extra=lambda x: x * 2)(funky)
+    fn5 = cache_memoize(10, extra=lambda x: x * 3)(funky)
+
+    assert fn1.get_cache_key(1) == fn2.get_cache_key(1)
+    assert fn2.get_cache_key(1) != fn3.get_cache_key(1)
+    assert fn4.get_cache_key(1) != fn5.get_cache_key(1)
 
 
 def test_cache_memoize_none_value():

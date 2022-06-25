@@ -1,9 +1,12 @@
 from functools import wraps
 import itertools
+import json
+import inspect
 
 import hashlib
 from urllib.parse import quote
 
+from django.db import models
 from django.core.cache import caches, DEFAULT_CACHE_ALIAS
 
 from django.utils.encoding import force_bytes
@@ -14,6 +17,7 @@ MARKER = object()
 def cache_memoize(
     timeout,
     prefix=None,
+    extra=None,
     args_rewrite=None,
     hit_callable=None,
     miss_callable=None,
@@ -27,6 +31,8 @@ def cache_memoize(
 
     :arg int timeout: Number of seconds to store the result if not None
     :arg string prefix: If None becomes the function name.
+    :arg string extra: Optional callable or serializable structure of key
+    components cache should vary on.
     :arg function args_rewrite: Callable that rewrites the args first useful
     if your function needs nontrivial types but you know a simple way to
     re-represent them for the sake of the cache key.
@@ -88,6 +94,17 @@ def cache_memoize(
         callmeonce('peter')                 # nothing printed
         callmeonce('peter', _refresh=True)  # will print 'peter'
 
+    If your cache depends on external state you can provide `extra` values::
+
+        @cache_memoize(100, extra={'version': 2})
+        def callmeonce(arg1):
+            print(arg1)
+
+    An `extra` argument can be callable or any serializable structure::
+
+        @cache_memoize(100, extra=lambda req: req.user.is_staff)
+        def callmeonce(arg1):
+            print(arg1)
     """
 
     if args_rewrite is None:
@@ -96,6 +113,17 @@ def cache_memoize(
             return args
 
         args_rewrite = noop
+
+    def obj_key(obj):
+        if isinstance(obj, models.Model):
+            return "%s.%s.%s" % (obj._meta.app_label, obj._meta.model_name, obj.pk)
+        elif hasattr(obj, "build_absolute_uri"):
+            return obj.build_absolute_uri()
+        elif inspect.isfunction(obj):
+            factors = [obj.__module__, obj.__name__]
+            return factors
+        else:
+            return str(obj)
 
     def decorator(func):
         def _default_make_cache_key(*args, **kwargs):
@@ -109,8 +137,13 @@ def cache_memoize(
                 )
             )
             prefix_ = prefix or ".".join((func.__module__ or "", func.__qualname__))
+            extra_val = json.dumps(
+                extra(*args, **kwargs) if callable(extra) else extra,
+                sort_keys=True,
+                default=obj_key,
+            )
             return hashlib.md5(
-                force_bytes("cache_memoize" + prefix_ + cache_key)
+                force_bytes("cache_memoize" + prefix_ + cache_key + extra_val)
             ).hexdigest()
 
         _make_cache_key = key_generator_callable or _default_make_cache_key
