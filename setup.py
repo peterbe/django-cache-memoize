@@ -6,7 +6,7 @@ _here = path.dirname(__file__)
 
 setup(
     name="django-cache-memoize",
-    version="0.1.10",
+    version="0.2.0",
     description=(
         "Django utility for a memoization decorator that uses the Django "
         "cache framework."
@@ -18,7 +18,7 @@ setup(
     url="https://github.com/peterbe/django-cache-memoize",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
-    python_requires=">=3.5",
+    python_requires=">=3.8",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment :: Mozilla",
@@ -27,11 +27,10 @@ setup(
         "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3 :: Only",
         "Topic :: Internet :: WWW/HTTP",
     ],
