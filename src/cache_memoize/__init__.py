@@ -130,7 +130,6 @@ def cache_memoize(
             else:
                 result = cache.get(cache_key, MARKER)
             if result is MARKER:
-
                 # If the function all raises an exception we want to cache,
                 # catch it, else let it propagate.
                 try:
