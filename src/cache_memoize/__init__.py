@@ -1,6 +1,7 @@
 from functools import wraps
 import itertools
 
+import inspect
 import hashlib
 from urllib.parse import quote
 
@@ -21,6 +22,7 @@ def cache_memoize(
     store_result=True,
     cache_exceptions=(),
     cache_alias=DEFAULT_CACHE_ALIAS,
+    unless=None
 ):
     """Decorator for memoizing function calls where we use the
     "local cache" to store the result.
@@ -97,6 +99,26 @@ def cache_memoize(
 
         args_rewrite = noop
 
+    def _bypass_cache(self, *args, **kwargs):
+        """Determines whether or not to bypass the cache by calling unless().
+        Supports both unless() that takes in arguments and unless()
+        that doesn't.
+        """
+        bypass_cache = False
+
+        if callable(unless):
+            argspec = inspect.getfullargspec(unless)
+            has_args = len(argspec.args) > 0 or argspec.varargs or argspec.varkw
+
+            # If unless() takes args, pass them in.
+            if has_args:
+                if unless(*args, **kwargs) is True:
+                    bypass_cache = True
+            elif unless() is True:
+                bypass_cache = True
+
+        return bypass_cache        
+        
     def decorator(func):
         def _default_make_cache_key(*args, **kwargs):
             cache_key = ":".join(
@@ -137,6 +159,9 @@ def cache_memoize(
                 except cache_exceptions as exception:
                     result = exception
 
+                if _bypass_cache(*args, **kwargs):
+                    return result
+                
                 if not store_result:
                     # Then the result isn't valuable/important to store but
                     # we want to store something. Just to remember that
