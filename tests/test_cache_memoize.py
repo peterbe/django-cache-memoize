@@ -18,7 +18,6 @@ def test_the_setup():
 
 
 def test_cache_memoize():
-
     calls_made = []
 
     @cache_memoize(10)
@@ -166,7 +165,6 @@ class TestDefaultCacheKeyQuoting:
 
 
 def test_cache_memoize_hit_miss_callables():
-
     hits = []
     misses = []
     calls_made = []
@@ -208,7 +206,6 @@ def test_cache_memoize_hit_miss_callables():
 
 
 def test_cache_memoize_refresh():
-
     calls_made = []
 
     @cache_memoize(10)
@@ -225,7 +222,6 @@ def test_cache_memoize_refresh():
 
 
 def test_cache_memoize_different_functions_same_arguments():
-
     calls_made_1 = []
     calls_made_2 = []
 
@@ -271,7 +267,6 @@ def test_cache_memoize_different_functions_same_arguments():
 
 
 def test_invalidate():
-
     calls_made = []
 
     @cache_memoize(10)
@@ -291,7 +286,6 @@ def test_invalidate():
 
 
 def test_invalidate_with_refresh():
-
     calls_made = []
 
     @cache_memoize(10)
@@ -324,7 +318,6 @@ def test_get_cache_key():
 
 
 def test_cache_memoize_custom_alias():
-
     calls_made = []
 
     def runmeonce(a):
@@ -345,7 +338,6 @@ def test_cache_memoize_custom_alias():
 
 
 def test_cache_memoize_works_with_custom_key_generator():
-
     calls_made = []
 
     def key_generator(*args):
@@ -365,7 +357,6 @@ def test_cache_memoize_works_with_custom_key_generator():
 
 
 def test_invalidate_with_custom_key_generator():
-
     calls_made = []
 
     def key_generator(*args):
