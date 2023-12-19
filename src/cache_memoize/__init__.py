@@ -8,6 +8,7 @@ from urllib.parse import quote
 
 from django.db import models
 from django.core.cache import caches, DEFAULT_CACHE_ALIAS
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
 
 from django.utils.encoding import force_bytes
 
@@ -15,7 +16,7 @@ MARKER = object()
 
 
 def cache_memoize(
-    timeout,
+    timeout=DEFAULT_TIMEOUT,
     prefix=None,
     extra=None,
     args_rewrite=None,
