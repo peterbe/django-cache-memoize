@@ -1,3 +1,9 @@
+0.1.11
+~~~~~~
+
+- Include 3.12 in tests and omit 3.8
+  `pull#69 <https://github.com/peterbe/django-cache-memoize/pull/69>`
+
 0.1.10
 ~~~~~~
 
