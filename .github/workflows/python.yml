@@ -3,7 +3,15 @@
 
 name: Python
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+# Drop permissions to minimum for security
+permissions:
+  contents: read
 
 jobs:
   build:
