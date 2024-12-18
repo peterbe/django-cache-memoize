@@ -1,3 +1,10 @@
+0.2.1
+~~~~~~
+
+- The ``timeout`` value is now optional and defaults to that of
+  ``DEFAULT_TIMEOUT`` from ``django.core.cache.backends.base``
+  `pull#68 <https://github.com/peterbe/django-cache-memoize/pull/68>`
+
 0.1.11
 ~~~~~~
 
