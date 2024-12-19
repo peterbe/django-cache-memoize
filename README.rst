@@ -296,7 +296,7 @@ again with the same arguments except you add ``.invalidate`` to the function.
     65
     >>> expensive_function(100, 200)
     121
-    >>> exensive_function.invalidate(1, 100)
+    >>> expensive_function.invalidate(1, 100)
     >>> expensive_function(1, 100)
     89
     >>> expensive_function(100, 200)
