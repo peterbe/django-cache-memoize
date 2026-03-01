@@ -12,6 +12,7 @@ setup(
         "cache framework."
     ),
     long_description=open(path.join(_here, "README.rst")).read(),
+    long_description_content_type="text/x-rst",
     author="Peter Bengtsson",
     author_email="mail@peterbe.com",
     license="MPL-2.0",
