@@ -37,5 +37,5 @@ setup(
     ],
     keywords=["django", "memoize", "cache", "decorator"],
     zip_safe=False,
-    extras_require={"dev": ["flake8", "tox", "twine", "therapist", "black"]},
+    extras_require={"dev": ["flake8", "tox", "twine"]},
 )

@@ -12,9 +12,6 @@ django-cache-memoize
    :alt: Documentation Status
    :target: https://django-cache-memoize.readthedocs.io/en/latest/?badge=latest
 
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-  :target: https://github.com/ambv/black
-
 Django utility for a memoization decorator that uses the Django cache framework.
 
 For versions of Python and Django, check out `the tox.ini file`_.
@@ -459,37 +456,9 @@ The most basic thing is to clone the repo and run:
     tox
 
 
-Code style is all black
-~~~~~~~~~~~~~~~~~~~~~~~
+Code Formatting
+~~~~~~~~~~~~~~~
 
-All code has to be formatted with `Black <https://pypi.org/project/black/>`_
-and the best tool for checking this is
-`therapist <https://pypi.org/project/therapist/>`_ since it can help you run
-all, help you fix things, and help you make sure linting is passing before
-you git commit. This project also uses ``flake8`` to check other things
-Black can't check.
-
-To check linting with ``tox`` use:
-
-.. code:: bash
-
-    tox -e lint-py36
-
-To install the ``therapist`` pre-commit hook simply run:
-
-.. code:: bash
-
-    therapist install
-
-When you run ``therapist run`` it will only check the files you've touched.
-To run it for all files use:
-
-.. code:: bash
-
-    therapist run --use-tracked-files
-
-And to fix all/any issues run:
-
-.. code:: bash
-
-    therapist run --use-tracked-files --fix
+At the time (2026), there's no point in having a code style discussion.
+In the near future, let's just use ``ruff`` for all linting and formatting.
+For now, it's disabled.
