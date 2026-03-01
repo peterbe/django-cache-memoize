@@ -275,7 +275,6 @@ The ``cache_alias`` argument allows you to use a cache other than the default.
     def myfunc(start, end):
         return random.random()
 
-
 ``extra``
 ~~~~~~~~~
 
@@ -299,9 +298,9 @@ Optional callable or serializable structure of key components cache should vary 
     def callmeonce(user):
         print(arg1)
 
-Contributed in `pull/62`_ by `@pySilver`_
+Contributed in `pull#62`_ by `@pySilver`_
 
-.. _`pull/62`: https://github.com/peterbe/django-cache-memoize/pull/62
+.. _`pull#62`: https://github.com/peterbe/django-cache-memoize/pull/62
 .. _`@pySilver`: https://github.com/pySilver
 
 
