@@ -1,15 +1,14 @@
-from functools import wraps
+import hashlib
+import inspect
 import itertools
 import json
-import inspect
-
-import hashlib
+import sys
+from functools import wraps
 from urllib.parse import quote
 
-from django.db import models
-from django.core.cache import caches, DEFAULT_CACHE_ALIAS
+from django.core.cache import DEFAULT_CACHE_ALIAS, caches
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
-
+from django.db import models
 from django.utils.encoding import force_bytes
 
 MARKER = object()

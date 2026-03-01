@@ -1,5 +1,5 @@
 import random
-from threading import Thread, Lock
+from threading import Lock, Thread
 
 import pytest
 from django.core.cache import cache
