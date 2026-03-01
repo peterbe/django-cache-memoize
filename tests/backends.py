@@ -1,11 +1,7 @@
 from collections import OrderedDict
-from django.core.cache.backends.locmem import LocMemCache
+from threading import Lock
 
-try:
-    # For Django versions < 2.1
-    from django.utils.synch import RWLock as Lock
-except ImportError:
-    from threading import Lock
+from django.core.cache.backends.locmem import LocMemCache
 
 
 class ThreadLocalCache(LocMemCache):
