@@ -276,6 +276,35 @@ The ``cache_alias`` argument allows you to use a cache other than the default.
         return random.random()
 
 
+``extra``
+~~~~~~~~~
+
+Optional callable or serializable structure of key components cache should vary on.
+
+.. code-block:: python
+
+    @cache_memoize(60, extra=('foo', obj.pk, foo.last_updated_at))
+    def foo(*args, **kwargs):
+        return 42
+
+    @cache_memoize(100, extra={"version": 2})
+    def callmeonce(arg1):
+        print(arg1)
+
+    @cache_memoize(100, extra=100500)
+    def callmeonce(arg1):
+        print(arg1)
+
+    @cache_memoize(100, extra=lambda user: user.is_staff)
+    def callmeonce(user):
+        print(arg1)
+
+Contributed in `pull/62`_ by `@pySilver`_
+
+.. _`pull/62`: https://github.com/peterbe/django-cache-memoize/pull/62
+.. _`@pySilver`: https://github.com/pySilver
+
+
 Cache invalidation
 ~~~~~~~~~~~~~~~~~~
 
