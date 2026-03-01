@@ -7,6 +7,9 @@ from django.core.cache import cache
 
 from cache_memoize import cache_memoize
 
+from .dummy_package import a as dummy_a
+from .dummy_package import b as dummy_b
+
 
 def test_the_setup():
     """If this doesn't work, the settings' CACHES isn't working."""
@@ -15,30 +18,58 @@ def test_the_setup():
 
 
 def test_cache_memoize():
-
     calls_made = []
 
     @cache_memoize(10)
-    def runmeonce(a, b, k="bla"):
-        calls_made.append((a, b, k))
-        return "{} {} {}".format(a, b, k)  # sample implementation
+    def runmeonce(a, b, k1="bla", k2=None):
+        calls_made.append((a, b, k1, k2))
+        return "{} {} {} {}".format(a, b, k1, k2)  # sample implementation
 
     runmeonce(1, 2)
     runmeonce(1, 2)
     assert len(calls_made) == 1
     runmeonce(1, 3)
     assert len(calls_made) == 2
-    # should work with most basic types
+    # Should work with most basic types
     runmeonce(1.1, "foo")
     runmeonce(1.1, "foo")
     assert len(calls_made) == 3
-    # even more "advanced" types
-    runmeonce(1.1, "foo", k=list("åäö"))
-    runmeonce(1.1, "foo", k=list("åäö"))
+    # Even more "advanced" types
+    runmeonce(1.1, "foo", k1=list("åäö"))
+    runmeonce(1.1, "foo", k1=list("åäö"))
     assert len(calls_made) == 4
     # And shouldn't be a problem even if the arguments are really long
     runmeonce("A" * 200, "B" * 200, {"C" * 100: "D" * 100})
     assert len(calls_made) == 5
+    # The order of the keyword arguments doesn't matter
+    runmeonce(1, 2, k1=3, k2=4)
+    runmeonce(1, 2, k2=4, k1=3)
+    assert len(calls_made) == 6
+
+
+@pytest.mark.parametrize(
+    ("obj_1", "obj_2"),
+    [
+        # Check identically named entities from different modules
+        (dummy_a.func, dummy_b.func),
+        (dummy_a.decorated_func, dummy_b.decorated_func),
+        (dummy_a.DummyClass().func, dummy_b.DummyClass().func),
+        (dummy_a.DummyClass().decorated_func, dummy_b.DummyClass().decorated_func),
+        #
+        # Check identically named entities from different scopes
+        (dummy_a.func, dummy_a.DummyClass().func),
+        (dummy_a.func, dummy_a.func_factory()),
+        #
+        # Check decorated entities
+        (dummy_a.decorated_func, dummy_a.another_decorated_func),
+        (
+            dummy_a.DummyClass().decorated_func,
+            dummy_a.DummyClass().another_decorated_func,
+        ),
+    ],
+)
+def test_default_prefix_uniqueness(obj_1, obj_2):
+    assert obj_1.get_cache_key() != obj_2.get_cache_key()
 
 
 def test_prefixes():
@@ -75,29 +106,65 @@ def test_no_store_result():
     assert len(calls_made) == 1
 
 
-@pytest.mark.parametrize(
-    "bits", [("a", "b", "c"), ("ä", "á", "ö"), ("ë".encode(), b"\02", b"i")]
-)
-def test_colons(bits):
-    calls_made = []
+class TestDefaultCacheKeyQuoting:
+    @pytest.mark.parametrize(
+        "bits", [("a", "b", "c"), ("ä", "á", "ö"), ("ë".encode(), b"\02", b"i")]
+    )
+    def test_colons_quoting(self, bits):
+        calls_made = []
 
-    @cache_memoize(10)
-    def fun(a, b, k="bla"):
-        calls_made.append((a, b, k))
-        return (a, b, k)
+        @cache_memoize(10)
+        def fun(a, b, k="bla"):
+            calls_made.append((a, b, k))
+            return (a, b, k)
 
-    sep = ":"
-    if isinstance(bits[0], bytes):
-        sep = sep.encode()
-    a1, a2 = (sep.join(bits[:2]), bits[2])
-    b1, b2 = (bits[0], sep.join(bits[1:]))
-    fun(a1, a2)
-    fun(b1, b2)
-    assert len(calls_made) == 2
+        sep = ":"
+        if isinstance(bits[0], bytes):
+            sep = sep.encode()
+        a1, a2 = (sep.join(bits[:2]), bits[2])
+        b1, b2 = (bits[0], sep.join(bits[1:]))
+        fun(a1, a2)
+        fun(b1, b2)
+        assert len(calls_made) == 2
+
+    @pytest.mark.parametrize(
+        ("arguments_1", "arguments_2"),
+        [
+            (
+                (("a", "b", "c"), {}),
+                (("a:b:c",), {}),
+            ),
+            (
+                (("a", "b"), {"c": "d"}),
+                (("a",), {"b:c": "d"}),
+            ),
+            (
+                (("a",), {"b": "c"}),
+                (("a", "b=c"), {}),
+            ),
+            (
+                ((), {"a": "b=c"}),
+                ((), {"a=b": "c"}),
+            ),
+        ],
+    )
+    def test_general_quoting(self, arguments_1, arguments_2):
+        calls_made = []
+
+        @cache_memoize(10)
+        def fun(*args, **kwargs):
+            calls_made.append((args, kwargs))
+
+        args, kwargs = arguments_1
+        fun(*args, **kwargs)
+
+        args, kwargs = arguments_2
+        fun(*args, **kwargs)
+
+        assert calls_made == [arguments_1, arguments_2]
 
 
 def test_cache_memoize_hit_miss_callables():
-
     hits = []
     misses = []
     calls_made = []
@@ -139,7 +206,6 @@ def test_cache_memoize_hit_miss_callables():
 
 
 def test_cache_memoize_refresh():
-
     calls_made = []
 
     @cache_memoize(10)
@@ -156,7 +222,6 @@ def test_cache_memoize_refresh():
 
 
 def test_cache_memoize_different_functions_same_arguments():
-
     calls_made_1 = []
     calls_made_2 = []
 
@@ -192,7 +257,9 @@ def test_cache_memoize_different_functions_same_arguments():
     # If you set the prefix, you can cross wire functions.
     # Note sure why you'd ever want to do this though
 
-    @cache_memoize(10, prefix=function_2.__qualname__)
+    @cache_memoize(
+        10, prefix=".".join((function_2.__module__, function_2.__qualname__))
+    )
     def function_3(a):
         raise Exception
 
@@ -200,7 +267,6 @@ def test_cache_memoize_different_functions_same_arguments():
 
 
 def test_invalidate():
-
     calls_made = []
 
     @cache_memoize(10)
@@ -220,7 +286,6 @@ def test_invalidate():
 
 
 def test_invalidate_with_refresh():
-
     calls_made = []
 
     @cache_memoize(10)
@@ -248,12 +313,11 @@ def test_get_cache_key():
     def funky(argument):
         pass
 
-    assert funky.get_cache_key(100) == "f0b86356861e088e2058855e95ee8981"
-    assert funky.get_cache_key(100, _refresh=True) == "f0b86356861e088e2058855e95ee8981"
+    assert funky.get_cache_key(100) == "eb96668ba0d14dc7748161fb1d000239"
+    assert funky.get_cache_key(100, _refresh=True) == "eb96668ba0d14dc7748161fb1d000239"
 
 
 def test_cache_memoize_custom_alias():
-
     calls_made = []
 
     def runmeonce(a):
@@ -274,7 +338,6 @@ def test_cache_memoize_custom_alias():
 
 
 def test_cache_memoize_works_with_custom_key_generator():
-
     calls_made = []
 
     def key_generator(*args):
@@ -294,7 +357,6 @@ def test_cache_memoize_works_with_custom_key_generator():
 
 
 def test_invalidate_with_custom_key_generator():
-
     calls_made = []
 
     def key_generator(*args):
@@ -324,6 +386,21 @@ def test_get_cache_key_with_custom_key_generator():
         pass
 
     assert funky.get_cache_key("1") == "1111111111"
+
+
+def test_get_cache_key_with_extra_components():
+    def funky(argument):
+        pass
+
+    fn1 = cache_memoize(10, extra={"version": 1})(funky)
+    fn2 = cache_memoize(10, extra={"version": 1})(funky)
+    fn3 = cache_memoize(10, extra={"version": 2})(funky)
+    fn4 = cache_memoize(10, extra=lambda x: x * 2)(funky)
+    fn5 = cache_memoize(10, extra=lambda x: x * 3)(funky)
+
+    assert fn1.get_cache_key(1) == fn2.get_cache_key(1)
+    assert fn2.get_cache_key(1) != fn3.get_cache_key(1)
+    assert fn4.get_cache_key(1) != fn5.get_cache_key(1)
 
 
 def test_cache_memoize_none_value():

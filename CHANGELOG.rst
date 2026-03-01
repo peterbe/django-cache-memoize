@@ -1,3 +1,39 @@
+0.2.1
+~~~~~~
+
+- The ``timeout`` value is now optional and defaults to that of
+  ``DEFAULT_TIMEOUT`` from ``django.core.cache.backends.base``
+  `pull#68 <https://github.com/peterbe/django-cache-memoize/pull/68>`
+
+0.1.11
+~~~~~~
+
+- Include 3.12 in tests and omit 3.8
+  `pull#69 <https://github.com/peterbe/django-cache-memoize/pull/69>`
+
+0.1.10
+~~~~~~
+
+- Support for Django 3.2
+  `pull#51 <https://github.com/peterbe/django-cache-memoize/pull/51>`
+  Thanks @UsamaSadiq
+
+0.1.9
+~~~~~
+
+- Fix potential problem with default cache key generation (sort order,
+  possible identical key, quoting of paramters with ``=`` sign in string)
+  `pull#50 <https://github.com/peterbe/django-cache-memoize/pull/50>`_
+  Thanks @kri-k
+
+0.1.8
+~~~~~
+
+- New `get_cache_key` method for findout out what a decorated function's
+  cache key would be.
+  `pull#44 <https://github.com/peterbe/django-cache-memoize/pull/44>`_
+  Thanks @benweatherman
+
 0.1.7
 ~~~~~
 

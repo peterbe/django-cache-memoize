@@ -1,6 +1,8 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -eo pipefail
 
-rm -fr dist/*
+# From https://pypi.org/project/twine/
+
+rm -fr dist/
 python setup.py sdist bdist_wheel
-twine upload dist/*
+twine upload --repository django-cache-memoize dist/*

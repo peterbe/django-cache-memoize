@@ -12,9 +12,6 @@ django-cache-memoize
    :alt: Documentation Status
    :target: https://django-cache-memoize.readthedocs.io/en/latest/?badge=latest
 
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-  :target: https://github.com/ambv/black
-
 Django utility for a memoization decorator that uses the Django cache framework.
 
 For versions of Python and Django, check out `the tox.ini file`_.
@@ -275,6 +272,34 @@ The ``cache_alias`` argument allows you to use a cache other than the default.
     def myfunc(start, end):
         return random.random()
 
+``extra``
+~~~~~~~~~
+
+Optional callable or serializable structure of key components cache should vary on.
+
+.. code-block:: python
+
+    @cache_memoize(60, extra=('foo', obj.pk, foo.last_updated_at))
+    def foo(*args, **kwargs):
+        return 42
+
+    @cache_memoize(100, extra={"version": 2})
+    def callmeonce(arg1):
+        print(arg1)
+
+    @cache_memoize(100, extra=100500)
+    def callmeonce(arg1):
+        print(arg1)
+
+    @cache_memoize(100, extra=lambda user: user.is_staff)
+    def callmeonce(user):
+        print(arg1)
+
+Contributed in `pull#62`_ by `@pySilver`_
+
+.. _`pull#62`: https://github.com/peterbe/django-cache-memoize/pull/62
+.. _`@pySilver`: https://github.com/pySilver
+
 
 Cache invalidation
 ~~~~~~~~~~~~~~~~~~
@@ -296,7 +321,7 @@ again with the same arguments except you add ``.invalidate`` to the function.
     65
     >>> expensive_function(100, 200)
     121
-    >>> exensive_function.invalidate(1, 100)
+    >>> expensive_function.invalidate(1, 100)
     >>> expensive_function(1, 100)
     89
     >>> expensive_function(100, 200)
@@ -324,9 +349,9 @@ certain pattern.
 Compatibility
 =============
 
-* Python 3.4, 3.5, 3.6, 3.7
+* Python 3.10, 3.11, 3.12 & 3.13
 
-* Django 1.11, 2.0, 2.1, 2.2, 3.0
+* Django 3.2, 4.1, 4.2, 5.0, 5.1 & 5.2
 
 Check out the `tox.ini`_ file for more up-to-date compatibility by
 test coverage.
@@ -431,37 +456,9 @@ The most basic thing is to clone the repo and run:
     tox
 
 
-Code style is all black
-~~~~~~~~~~~~~~~~~~~~~~~
+Code Formatting
+~~~~~~~~~~~~~~~
 
-All code has to be formatted with `Black <https://pypi.org/project/black/>`_
-and the best tool for checking this is
-`therapist <https://pypi.org/project/therapist/>`_ since it can help you run
-all, help you fix things, and help you make sure linting is passing before
-you git commit. This project also uses ``flake8`` to check other things
-Black can't check.
-
-To check linting with ``tox`` use:
-
-.. code:: bash
-
-    tox -e lint-py36
-
-To install the ``therapist`` pre-commit hook simply run:
-
-.. code:: bash
-
-    therapist install
-
-When you run ``therapist run`` it will only check the files you've touched.
-To run it for all files use:
-
-.. code:: bash
-
-    therapist run --use-tracked-files
-
-And to fix all/any issues run:
-
-.. code:: bash
-
-    therapist run --use-tracked-files --fix
+At the time (2026), there's no point in having a code style discussion.
+In the near future, let's just use ``ruff`` for all linting and formatting.
+For now, it's disabled.
