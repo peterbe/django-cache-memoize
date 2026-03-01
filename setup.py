@@ -12,6 +12,7 @@ setup(
         "cache framework."
     ),
     long_description=open(path.join(_here, "README.rst")).read(),
+    long_description_content_type="text/x-rst",
     author="Peter Bengtsson",
     author_email="mail@peterbe.com",
     license="MPL-2.0",
@@ -36,5 +37,5 @@ setup(
     ],
     keywords=["django", "memoize", "cache", "decorator"],
     zip_safe=False,
-    extras_require={"dev": ["flake8", "tox", "twine", "therapist", "black"]},
+    extras_require={"dev": ["flake8", "tox", "twine"]},
 )
