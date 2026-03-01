@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # django-cache-memoize documentation build configuration file, created by
 # sphinx-quickstart on Fri Oct 27 13:48:25 2017.
