@@ -349,9 +349,9 @@ certain pattern.
 Compatibility
 =============
 
-* Python 3.10, 3.11, 3.12, 3.13, 3.14
+* Python 3.11, 3.12, 3.13, 3.14
 
-* Django 4.1, 4.2, 5.0, 5.1, 5.2, 6.0
+* Django 4, 5.0, 5.1, 5.2, 6.0
 
 Check out the `tox.ini`_ file for more up-to-date compatibility by
 test coverage.
