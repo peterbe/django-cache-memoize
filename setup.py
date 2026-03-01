@@ -19,7 +19,7 @@ setup(
     url="https://github.com/peterbe/django-cache-memoize",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
-    python_requires=">=3.10",
+    python_requires=">=3.11",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment :: Mozilla",
@@ -28,7 +28,6 @@ setup(
         "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
