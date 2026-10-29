@@ -91,6 +91,31 @@ detail. In particular it demonstrates the difference between *not* using
 Advanced Usage
 ==============
 
+``timeout``
+~~~~~~~~~~~
+
+The first argument is the cache timeout in seconds. When a call misses the
+cache, the decorator runs the function and stores its result with this timeout.
+Calls with the same cache key reuse the stored result until it expires;
+cache hits do not reset or extend the timeout.
+
+For example, with ``@cache_memoize(100)``, a result stored at time 0 can be
+reused at time 60. A call at time 110 runs the function again, even though
+only 50 seconds have passed since the cache hit. The new result gets its own
+100-second timeout. Passing ``_refresh=True`` also runs the function again
+and stores the new result with a new timeout.
+
+An expired result is no longer returned by the cache, even if the decorated
+function has not been called again. When the expired entry is physically
+removed from storage depends on the cache backend; the decorator does not
+schedule cleanup. Entries may also be evicted or invalidated before the
+timeout, so the timeout does not guarantee that a result stays cached for
+that long.
+
+The timeout follows Django's cache API: ``None`` means no expiration, ``0``
+means do not cache, and omitting it (``@cache_memoize()``) uses the selected
+cache's configured ``TIMEOUT`` (300 seconds by default).
+
 ``args_rewrite``
 ~~~~~~~~~~~~~~~~
 
